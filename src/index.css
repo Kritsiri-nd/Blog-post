@@ -1,68 +1,85 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@import "tailwindcss";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* Color variables */
+:root{
+  --brown-600:#26231E;
+  --brown-500:#43403B;
+  --brown-400:#75716B;
+  --brown-300:#DAD6D1;
+  --brown-200:#EFEEEB;
+  --brown-100:#F9F8F6;
+  --white:#FFFFFF;
+  --orange:#F2B68C;
+  --green:#12B279;
+  --green-light:#D7F2E9;
+  --red:#EB5164;
+  --gray-0:#1A1A2C;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Base defaults */
+@layer base{
+  html, body{
+    font-family: 'Poppins', sans-serif;
+    margin:0;
+    background-color: var(--white);
+    color: var(--brown-600);
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+/* Components: typography scale */
+@layer components{
+  .font-poppins{ font-family: 'Poppins', sans-serif; }
+
+  .h1{ font-weight:600; font-size:52px; line-height:60px; }
+  .h2{ font-weight:600; font-size:40px; line-height:48px; }
+  .h3{ font-weight:600; font-size:24px; line-height:32px; }
+  .h4{ font-weight:600; font-size:20px; line-height:28px; }
+
+  .b1{ font-weight:500; font-size:16px; line-height:24px; }
+  .b2{ font-weight:500; font-size:14px; line-height:22px; }
+  .b3{ font-weight:500; font-size:12px; line-height:20px; }
+}
+
+/* Utilities for the color palette (convenience classes if not extending tailwind config) */
+@layer utilities{
+  /* background */
+  .bg-brown-600{ background-color:var(--brown-600) !important; }
+  .bg-brown-500{ background-color:var(--brown-500) !important; }
+  .bg-brown-400{ background-color:var(--brown-400) !important; }
+  .bg-brown-300{ background-color:var(--brown-300) !important; }
+  .bg-brown-200{ background-color:var(--brown-200) !important; }
+  .bg-brown-100{ background-color:var(--brown-100) !important; }
+
+  .bg-white{ background-color:var(--white) !important; }
+  .bg-orange{ background-color:var(--orange) !important; }
+  .bg-green{ background-color:var(--green) !important; }
+  .bg-green-light{ background-color:var(--green-light) !important; }
+  .bg-red{ background-color:var(--red) !important; }
+  .bg-gray-0{ background-color:var(--gray-0) !important; }
+
+  /* text color */
+  .text-brown-600{ color:var(--brown-600) !important; }
+  .text-brown-500{ color:var(--brown-500) !important; }
+  .text-brown-400{ color:var(--brown-400) !important; }
+  .text-brown-300{ color:var(--brown-300) !important; }
+  .text-brown-200{ color:var(--brown-200) !important; }
+  .text-brown-100{ color:var(--brown-100) !important; }
+
+  .text-white{ color:var(--white) !important; }
+  .text-orange{ color:var(--orange) !important; }
+  .text-green{ color:var(--green) !important; }
+  .text-green-light{ color:var(--green-light) !important; }
+  .text-red{ color:var(--red) !important; }
+  .text-gray-0{ color:var(--gray-0) !important; }
+  
+  /* .hover\:bg-brown-400:hover { background-color: var(--brown-400) !important; }
+  .hover\:text-brown-400:hover { color: var(--brown-400) !important; }
+
+  .active\:bg-brown-500:active { background-color: var(--brown-500) !important; }
+  .active\:text-brown-500:active { color: var(--brown-500) !important; }
+
+  .disabled\:bg-brown-600:disabled { background-color: var(--brown-600) !important; opacity: 0.4; }
+  .disabled\:text-brown-600:disabled { color: var(--brown-600) !important; opacity: 0.4; } */
 }
