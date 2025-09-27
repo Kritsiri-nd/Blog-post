@@ -10,6 +10,8 @@ import NotFoundPage from "./component/NotFoundPage";
 import SignUp from "./component/SignUp";
 import SignIn from "./component/SignIn";
 import SignUpSuccess from "./component/SignUpSuccess";
+import Profile from "./component/Profile";
+import ResetPassword from "./component/ResetPassword";
 
 function App() {
   return (
@@ -47,6 +49,18 @@ function App() {
           <>
             <Navbar />
             <SignUpSuccess />
+          </>
+        } />
+        <Route path="/profile" element={
+          <>
+            <Navbar />
+            <Profile />
+          </>
+        } />
+        <Route path="/reset-password" element={
+          <>
+            <Navbar />
+            <ResetPassword />
           </>
         } />
         <Route path="*" element={
