@@ -1,5 +1,6 @@
 import Search from "../assets/Search.png";
 import * as React from "react";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -8,25 +9,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { blogPosts } from "../data/blogPosts.js";
 import BlogCard from "./BlogCard";
 
 const categories = ["Highlight", "Cat", "Inspiration", "General"];
 
 function ArticleSection() {
-  const [category, setCategory] = React.useState("Highlight"); // ✅ ค่าเริ่มต้น
+  const [category, setCategory] = React.useState("Highlight");
+  const [posts, setPosts] = React.useState([]);
+  const [page, setPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  // ✅ filter posts ตาม category
-  const filteredPosts = blogPosts.filter(
-    (post) => category === "Highlight" || post.category === category
-  );
+  // ฟังก์ชันดึงข้อมูลที่จะถูกเรียกเมื่อ page หรือ category เปลี่ยนแปลง
+  React.useEffect(() => {
+    fetchPosts();
+  }, [page, category]);
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    
+    try {
+      // ใช้ category parameter เฉพาะเมื่อไม่ใช่ Highlight
+      const categoryParam = category === "Highlight" ? "" : category;
+      
+      const response = await axios.get(
+        "https://blog-post-project-api.vercel.app/posts", {
+          params: {
+            page: page,
+            limit: 6,
+            category: categoryParam
+          }
+        }
+      );
+      
+      // รวมโพสต์ใหม่กับโพสต์เดิม
+      setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      
+      // ตรวจสอบว่าได้ข้อมูลหน้าสุดท้ายแล้วหรือยัง
+      if (response.data.currentPage >= response.data.totalPages) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // รีเซ็ตข้อมูลเมื่อเปลี่ยน category
+  React.useEffect(() => {
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+  }, [category]);
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   return (
     <section className="w-full mx-auto max-w-[1200px] p-10">
       <div className="bg-brown-200 px-10">
         <h1 className="h3">Latest articles</h1>
 
-        {/* ✅ Desktop: Category buttons + Search */}
+        {/* Desktop: Category buttons + Search */}
         <div className="sm:flex hidden gap-4 py-10 px-10">
           {categories.map((cat) => (
             <button
@@ -34,8 +80,8 @@ function ArticleSection() {
               className={`px-4 py-2 rounded font-medium text-sm transition-colors
                 ${
                   category === cat
-                    ? "bg-brown-500 text-white cursor-not-allowed" // ถ้าเลือกอยู่
-                    : "bg-brown-300 hover:bg-brown-400" // ปกติ
+                    ? "bg-brown-500 text-white cursor-not-allowed"
+                    : "bg-brown-300 hover:bg-brown-400"
                 }`}
               disabled={category === cat}
               onClick={() => setCategory(cat)}
@@ -58,7 +104,7 @@ function ArticleSection() {
           </div>
         </div>
 
-        {/* ✅ Mobile: Select + Search */}
+        {/* Mobile: Select + Search */}
         <div className="sm:hidden flex flex-col gap-4 py-10">
           {/* Search */}
           <div className="relative flex">
@@ -94,9 +140,9 @@ function ArticleSection() {
         </div>
       </div>
 
-      {/* ✅ Grid Layout: render ตาม filteredPosts */}
+      {/* Grid Layout: render ตาม posts จาก API */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
-        {filteredPosts.map((post) => (
+        {posts.map((post) => (
           <BlogCard
             key={post.id}
             image={post.image}
@@ -108,6 +154,19 @@ function ArticleSection() {
           />
         ))}
       </div>
+
+      {/* View More Button */}
+      {hasMore && (
+        <div className="text-center mt-8">
+          <button
+            onClick={handleLoadMore}
+            className="hover:text-muted-foreground font-medium underline"
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "View more"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
