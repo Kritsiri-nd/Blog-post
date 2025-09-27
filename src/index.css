@@ -200,3 +200,157 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Markdown styles */
+.markdown {
+  color: var(--brown-600);
+}
+
+.markdown h1 {
+  font-weight: 600;
+  font-size: 52px;
+  line-height: 60px;
+  color: var(--brown-600);
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.markdown h2 {
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 48px;
+  color: var(--brown-600);
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+.markdown h3 {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--brown-600);
+  margin-bottom: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.markdown h4 {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--brown-600);
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.markdown p {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--brown-500);
+  margin-bottom: 1rem;
+  line-height: 1.625;
+}
+
+.markdown ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.markdown ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.markdown li {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--brown-500);
+  margin-bottom: 0.5rem;
+}
+
+.markdown blockquote {
+  border-left: 4px solid var(--brown-300);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--brown-400);
+  margin-bottom: 1rem;
+}
+
+.markdown code {
+  background-color: var(--brown-200);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+.markdown pre {
+  background-color: var(--brown-200);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.markdown pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown a {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+.markdown strong {
+  font-weight: 600;
+}
+
+.markdown em {
+  font-style: italic;
+}
+
+.markdown hr {
+  border-color: var(--brown-300);
+  margin: 2rem 0;
+}
+
+.markdown img {
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--brown-300);
+  margin-bottom: 1rem;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--brown-300);
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.markdown th {
+  background-color: var(--brown-200);
+  font-weight: 600;
+}
+
+/* Sticky sidebar styles */
+.sticky-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}

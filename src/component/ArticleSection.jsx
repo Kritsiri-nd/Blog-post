@@ -42,8 +42,18 @@ function ArticleSection() {
         }
       );
       
-      // รวมโพสต์ใหม่กับโพสต์เดิม
-      setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      // ตรวจสอบว่าเป็นหน้าแรกหรือไม่
+      if (page === 1) {
+        // ถ้าเป็นหน้าแรก ให้แทนที่ posts ทั้งหมด
+        setPosts(response.data.posts);
+      } else {
+        // ถ้าไม่ใช่หน้าแรก ให้รวมกับ posts เดิม และกรอง ID ที่ซ้ำ
+        setPosts((prevPosts) => {
+          const existingIds = new Set(prevPosts.map(post => post.id));
+          const newPosts = response.data.posts.filter(post => !existingIds.has(post.id));
+          return [...prevPosts, ...newPosts];
+        });
+      }
       
       // ตรวจสอบว่าได้ข้อมูลหน้าสุดท้ายแล้วหรือยัง
       if (response.data.currentPage >= response.data.totalPages) {
@@ -144,7 +154,8 @@ function ArticleSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
         {posts.map((post) => (
           <BlogCard
-            key={post.id}
+            key={`${post.id}-${category}-${page}`}
+            id={post.id}
             image={post.image}
             category={post.category}
             title={post.title}
