@@ -12,6 +12,9 @@ import SignIn from "./component/SignIn";
 import SignUpSuccess from "./component/SignUpSuccess";
 import Profile from "./component/Profile";
 import ResetPassword from "./component/ResetPassword";
+import AdminLayout from "./component/AdminLayout";
+import ArticleManagement from "./component/ArticleManagement";
+import CreateArticle from "./component/CreateArticle";
 
 function App() {
   return (
@@ -62,6 +65,16 @@ function App() {
             <Navbar />
             <ResetPassword />
           </>
+        } />
+        <Route path="/admin/articles" element={
+          <AdminLayout>
+            <ArticleManagement />
+          </AdminLayout>
+        } />
+        <Route path="/admin/articles/create" element={
+          <AdminLayout>
+            <CreateArticle />
+          </AdminLayout>
         } />
         <Route path="*" element={
           <>
