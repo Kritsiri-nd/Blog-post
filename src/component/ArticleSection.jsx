@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import BlogCard from "./BlogCard";
+import SearchBar from "./SearchBar";
 
 const categories = ["Highlight", "Cat", "Inspiration", "General"];
 
@@ -42,8 +43,18 @@ function ArticleSection() {
         }
       );
       
-      // รวมโพสต์ใหม่กับโพสต์เดิม
-      setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      // ตรวจสอบว่าเป็นหน้าแรกหรือไม่
+      if (page === 1) {
+        // ถ้าเป็นหน้าแรก ให้แทนที่ posts ทั้งหมด
+        setPosts(response.data.posts);
+      } else {
+        // ถ้าไม่ใช่หน้าแรก ให้รวมกับ posts เดิม และกรอง ID ที่ซ้ำ
+        setPosts((prevPosts) => {
+          const existingIds = new Set(prevPosts.map(post => post.id));
+          const newPosts = response.data.posts.filter(post => !existingIds.has(post.id));
+          return [...prevPosts, ...newPosts];
+        });
+      }
       
       // ตรวจสอบว่าได้ข้อมูลหน้าสุดท้ายแล้วหรือยัง
       if (response.data.currentPage >= response.data.totalPages) {
@@ -90,35 +101,15 @@ function ArticleSection() {
             </button>
           ))}
 
-          <div className="relative flex ml-auto">
-            <input
-              type="text"
-              placeholder="Search"
-              className="b1 border border-brown-300 rounded-lg p-2 w-full sm:max-w-[350px]"
-            />
-            <img
-              src={Search}
-              alt="search"
-              className="w-6 h-6 absolute right-3 top-1/2 -translate-y-1/2"
-            />
+          <div className="ml-auto">
+            <SearchBar />
           </div>
         </div>
 
         {/* Mobile: Select + Search */}
         <div className="sm:hidden flex flex-col gap-4 py-10">
           {/* Search */}
-          <div className="relative flex">
-            <input
-              type="text"
-              placeholder="Search"
-              className="b1 border border-brown-300 rounded-lg p-2 w-full"
-            />
-            <img
-              src={Search}
-              alt="search"
-              className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-            />
-          </div>
+          <SearchBar />
 
           {/* Category Select */}
           <div className="relative flex">
@@ -144,7 +135,8 @@ function ArticleSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
         {posts.map((post) => (
           <BlogCard
-            key={post.id}
+            key={`${post.id}-${category}-${page}`}
+            id={post.id}
             image={post.image}
             category={post.category}
             title={post.title}

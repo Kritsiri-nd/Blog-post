@@ -1,31 +1,51 @@
-export default function BlogCard({ image, category, title, description, author, date }) {
+import { useNavigate } from "react-router-dom";
+
+export default function BlogCard({ image, category, title, description, author, date, id }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/post/${id}`);
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      <a href="#" className="relative h-[212px] sm:h-[260px]">
+      <button 
+        onClick={handleClick}
+        className="relative h-[212px] sm:h-[260px] w-full cursor-pointer"
+      >
         <img
-          className="w-full h-full object-cover rounded-md"
+          className="w-full h-full object-cover rounded-md hover:opacity-90 transition-opacity"
           src={image}
           alt={title}
         />
-      </a>
+      </button>
       <div className="flex flex-col">
         <div className="flex">
-          <span className="bg-green-200 rounded-full px-3 py-1 b2 font-semibold text-green-600 mb-2">
+          <span 
+            className="rounded-full px-3 py-1 b2 font-semibold mb-2"
+            style={{ backgroundColor: 'var(--green-light)', color: 'var(--green)' }}
+          >
             {category}
           </span>
         </div>
-        <a href="#">
-          <h2 className="text-start h4 text-brown-600  mb-2  hover:underline">
+        <button onClick={handleClick} className="text-left">
+          <h2 
+            className="h4 mb-2 hover:underline cursor-pointer"
+            style={{ color: 'var(--brown-600)' }}
+          >
             {title}
           </h2>
-        </a>
-        <p className="text-muted-foreground b2 text-brown-400 mb-4 flex-grow line-clamp-3">
+        </button>
+        <p 
+          className="b2 mb-4 flex-grow line-clamp-3"
+          style={{ color: 'var(--brown-400)' }}
+        >
           {description}
         </p>
         <div className="flex items-center b2">
-          <span className="text-brown-500">{author}</span>
-          <span className="mx-2 text-gray-300">|</span>
-          <span className="text-brown-400">{date}</span>
+          <span style={{ color: 'var(--brown-500)' }}>{author}</span>
+          <span className="mx-2" style={{ color: 'var(--brown-300)' }}>|</span>
+          <span style={{ color: 'var(--brown-400)' }}>{date}</span>
         </div>
       </div>
     </div>

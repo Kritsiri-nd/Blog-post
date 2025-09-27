@@ -4,6 +4,107 @@
 
 @import "tw-animate-css";
 
+/* Tailwind CSS v4 Custom Colors */
+@theme {
+  --color-brown-100: #F9F8F6;
+  --color-brown-200: #EFEEEB;
+  --color-brown-300: #DAD6D1;
+  --color-brown-400: #75716B;
+  --color-brown-500: #43403B;
+  --color-brown-600: #26231E;
+  
+  --color-green-light: #D7F2E9;
+  --color-green: #12B279;
+  
+  --color-orange: #F2B68C;
+  --color-red: #EB5164;
+  --color-gray-0: #1A1A2C;
+  
+  /* Typography */
+  --font-family-poppins: 'Poppins', sans-serif;
+  
+  --font-size-h1: 52px;
+  --line-height-h1: 60px;
+  --font-weight-h1: 600;
+  
+  --font-size-h2: 40px;
+  --line-height-h2: 48px;
+  --font-weight-h2: 600;
+  
+  --font-size-h3: 24px;
+  --line-height-h3: 32px;
+  --font-weight-h3: 600;
+  
+  --font-size-h4: 20px;
+  --line-height-h4: 28px;
+  --font-weight-h4: 600;
+  
+  --font-size-b1: 16px;
+  --line-height-b1: 24px;
+  --font-weight-b1: 500;
+  
+  --font-size-b2: 14px;
+  --line-height-b2: 22px;
+  --font-weight-b2: 500;
+  
+  --font-size-b3: 12px;
+  --line-height-b3: 20px;
+  --font-weight-b3: 500;
+}
+
+/* Custom CSS classes for colors that work with hover */
+.bg-brown-100 { background-color: #F9F8F6; }
+.bg-brown-200 { background-color: #EFEEEB; }
+.bg-brown-300 { background-color: #DAD6D1; }
+.bg-brown-400 { background-color: #75716B; }
+.bg-brown-500 { background-color: #43403B; }
+.bg-brown-600 { background-color: #26231E; }
+
+.text-brown-100 { color: #F9F8F6; }
+.text-brown-200 { color: #EFEEEB; }
+.text-brown-300 { color: #DAD6D1; }
+.text-brown-400 { color: #75716B; }
+.text-brown-500 { color: #43403B; }
+.text-brown-600 { color: #26231E; }
+
+.bg-green-light { background-color: #D7F2E9; }
+.bg-green { background-color: #12B279; }
+.text-green { color: #12B279; }
+
+/* Hover effects */
+.hover\:bg-brown-300:hover { background-color: #DAD6D1; }
+.hover\:bg-brown-400:hover { background-color: #75716B; }
+.hover\:bg-brown-500:hover { background-color: #43403B; }
+.hover\:bg-brown-600:hover { background-color: #26231E; }
+
+.hover\:text-brown-400:hover { color: #75716B; }
+.hover\:text-brown-500:hover { color: #43403B; }
+
+.hover\:bg-green-200:hover { background-color: #D7F2E9; }
+.hover\:bg-green-600:hover { background-color: #0D8A5A; }
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* Color variables */
@@ -199,4 +300,158 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Markdown styles */
+.markdown {
+  color: var(--brown-600);
+}
+
+.markdown h1 {
+  font-weight: 600;
+  font-size: 52px;
+  line-height: 60px;
+  color: var(--brown-600);
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.markdown h2 {
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 48px;
+  color: var(--brown-600);
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+.markdown h3 {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--brown-600);
+  margin-bottom: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.markdown h4 {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--brown-600);
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.markdown p {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--brown-500);
+  margin-bottom: 1rem;
+  line-height: 1.625;
+}
+
+.markdown ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.markdown ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.markdown li {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--brown-500);
+  margin-bottom: 0.5rem;
+}
+
+.markdown blockquote {
+  border-left: 4px solid var(--brown-300);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--brown-400);
+  margin-bottom: 1rem;
+}
+
+.markdown code {
+  background-color: var(--brown-200);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+.markdown pre {
+  background-color: var(--brown-200);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.markdown pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown a {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+.markdown strong {
+  font-weight: 600;
+}
+
+.markdown em {
+  font-style: italic;
+}
+
+.markdown hr {
+  border-color: var(--brown-300);
+  margin: 2rem 0;
+}
+
+.markdown img {
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--brown-300);
+  margin-bottom: 1rem;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--brown-300);
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.markdown th {
+  background-color: var(--brown-200);
+  font-weight: 600;
+}
+
+/* Sticky sidebar styles */
+.sticky-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
