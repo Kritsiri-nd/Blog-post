@@ -3,19 +3,22 @@ import { useNavigate } from "react-router-dom";
 export default function BlogCard({ image, category, title, description, author, date, id }) {
   const navigate = useNavigate();
 
-  const handleTitleClick = () => {
+  const handleClick = () => {
     navigate(`/post/${id}`);
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <a href="#" className="relative h-[212px] sm:h-[260px]">
+      <button 
+        onClick={handleClick}
+        className="relative h-[212px] sm:h-[260px] w-full cursor-pointer"
+      >
         <img
-          className="w-full h-full object-cover rounded-md"
+          className="w-full h-full object-cover rounded-md hover:opacity-90 transition-opacity"
           src={image}
           alt={title}
         />
-      </a>
+      </button>
       <div className="flex flex-col">
         <div className="flex">
           <span 
@@ -25,7 +28,7 @@ export default function BlogCard({ image, category, title, description, author, 
             {category}
           </span>
         </div>
-        <button onClick={handleTitleClick} className="text-left">
+        <button onClick={handleClick} className="text-left">
           <h2 
             className="h4 mb-2 hover:underline cursor-pointer"
             style={{ color: 'var(--brown-600)' }}

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import BlogCard from "./BlogCard";
+import SearchBar from "./SearchBar";
 
 const categories = ["Highlight", "Cat", "Inspiration", "General"];
 
@@ -100,35 +101,15 @@ function ArticleSection() {
             </button>
           ))}
 
-          <div className="relative flex ml-auto">
-            <input
-              type="text"
-              placeholder="Search"
-              className="b1 border border-brown-300 rounded-lg p-2 w-full sm:max-w-[350px]"
-            />
-            <img
-              src={Search}
-              alt="search"
-              className="w-6 h-6 absolute right-3 top-1/2 -translate-y-1/2"
-            />
+          <div className="ml-auto">
+            <SearchBar />
           </div>
         </div>
 
         {/* Mobile: Select + Search */}
         <div className="sm:hidden flex flex-col gap-4 py-10">
           {/* Search */}
-          <div className="relative flex">
-            <input
-              type="text"
-              placeholder="Search"
-              className="b1 border border-brown-300 rounded-lg p-2 w-full"
-            />
-            <img
-              src={Search}
-              alt="search"
-              className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-            />
-          </div>
+          <SearchBar />
 
           {/* Category Select */}
           <div className="relative flex">

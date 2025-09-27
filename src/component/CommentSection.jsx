@@ -1,4 +1,5 @@
 import * as React from "react";
+import LoginModal from "./LoginModal";
 
 // Mock comments data
 const mockComments = [
@@ -29,10 +30,19 @@ function CommentSection() {
   const [comments, setComments] = React.useState(mockComments);
   const [newComment, setNewComment] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  
+  // Simulate user not logged in (as per requirement)
+  const isLoggedIn = false;
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
 
     setIsSubmitting(true);
     
@@ -125,6 +135,12 @@ function CommentSection() {
           </div>
         ))}
       </div>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+      />
     </div>
   );
 }

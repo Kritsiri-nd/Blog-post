@@ -1,13 +1,24 @@
 import * as React from "react";
+import { toast } from "sonner";
 import FacebookIcon from "../assets/Facebook_ic.png";
 import LinkedInIcon from "../assets/LinkedIN_ic.png";
 import TwitterIcon from "../assets/Twitter_ic.png";
+import LoginModal from "./LoginModal";
 
 function InteractionButtons({ likes, postId }) {
   const [likeCount, setLikeCount] = React.useState(likes || 0);
   const [isLiked, setIsLiked] = React.useState(false);
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  
+  // Simulate user not logged in (as per requirement)
+  const isLoggedIn = false;
 
   const handleLike = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     if (isLiked) {
       setLikeCount(prev => prev - 1);
     } else {
@@ -19,7 +30,11 @@ function InteractionButtons({ likes, postId }) {
   const handleCopyLink = () => {
     const url = `${window.location.origin}/post/${postId}`;
     navigator.clipboard.writeText(url).then(() => {
-      alert("Link copied to clipboard!");
+      toast.success("Copied!", {
+        description: "This article has been copied to your clipboard.",
+      });
+    }).catch(() => {
+      toast.error("Failed to copy link");
     });
   };
 
@@ -30,13 +45,13 @@ function InteractionButtons({ likes, postId }) {
     let shareUrl = "";
     switch (platform) {
       case "facebook":
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        shareUrl = `https://www.facebook.com/share.php?u=${encodeURIComponent(url)}`;
         break;
       case "linkedin":
         shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
         break;
       case "twitter":
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+        shareUrl = `https://www.twitter.com/share?&url=${encodeURIComponent(url)}`;
         break;
       default:
         return;
@@ -46,11 +61,12 @@ function InteractionButtons({ likes, postId }) {
   };
 
   return (
+    <>
     <div className="flex items-center gap-4 mb-8">
       {/* Like Button */}
       <button
         onClick={handleLike}
-        className={`flex items-center gap-2 px-8 py-4 rounded-full transition-colors  ${
+        className={`flex items-center gap-2 px-8 py-4 rounded-full transition-colors ${
           isLiked 
             ? 'bg-green-light text-green' 
             : 'bg-brown-200 text-brown-600'
@@ -105,6 +121,13 @@ function InteractionButtons({ likes, postId }) {
         </button>
       </div>
     </div>
+
+    {/* Login Modal */}
+    <LoginModal 
+      isOpen={showLoginModal} 
+      onClose={() => setShowLoginModal(false)} 
+    />
+  </>
   );
 }
 
