@@ -66,19 +66,19 @@ const CreateArticle = () => {
     <div className="flex-1 p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Create article</h1>
+        <h1 className="h3  text-brown-600 ">Create article</h1>
         <div className="flex gap-3">
           <button
             onClick={handleSaveAsDraft}
             disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
           >
             {isLoading ? 'Saving...' : 'Save as draft'}
           </button>
           <button
             onClick={handleSaveAndPublish}
             disabled={isLoading}
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
           >
             {isLoading ? 'Publishing...' : 'Save and publish'}
           </button>
@@ -89,24 +89,23 @@ const CreateArticle = () => {
       <div className="bg-white rounded-lg shadow-sm p-8">
         <div className="space-y-6">
           {/* Thumbnail Image */}
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block b1 text-brown-400 mb-2">
               Thumbnail image
             </label>
           <div className='flex flex-row gap-4 items-end'>
-            <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center w-140 h-80">
+            <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center w-140 h-80 relative overflow-hidden">
               {formData.thumbnail ? (
-                <div className="space-y-2">
+                <div className="w-full h-full">
                   <img
                     src={URL.createObjectURL(formData.thumbnail)}
                     alt="Thumbnail preview"
-                    className="mx-auto max-h-20 rounded-lg"
+                    className="w-full h-full object-cover rounded-lg"
                   />
-                  <p className="text-xs text-gray-600 truncate">{formData.thumbnail.name}</p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="mx-auto w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Upload className="w-4 h-4 text-gray-400" />
+                <div className="flex flex-col items-center justify-center h-full space-y-2">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Upload className="w-4 h-4 text-brown-600 b1" />
                   </div>
                   <p className="text-xs text-gray-500">No image selected</p>
                 </div>
@@ -122,7 +121,7 @@ const CreateArticle = () => {
               />
               <button
                 onClick={() => document.getElementById('thumbnail-upload').click()}
-                className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                className="px-3 py-1.5 border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors  b1"
               >
                 Upload thumbnail image
               </button>
@@ -131,7 +130,7 @@ const CreateArticle = () => {
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block b1 text-brown-400 mb-2">
               Category
             </label>
             <div className="relative">
@@ -146,13 +145,13 @@ const CreateArticle = () => {
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brown-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* Author Name */}
+          {/* Author Name */} 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block b1 text-brown-400 mb-2">
               Author name
             </label>
             <input
@@ -160,13 +159,13 @@ const CreateArticle = () => {
               name="authorName"
               value={formData.authorName}
               readOnly
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 text-gray-600 cursor-not-allowed"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 text-brown-400 cursor-not-allowed"
             />
           </div>
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block b1 text-brown-400 mb-2">
               Title
             </label>
             <input
@@ -181,7 +180,7 @@ const CreateArticle = () => {
 
           {/* Introduction */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block b1 text-brown-400 mb-2">
               Introduction (max 120 letters)
             </label>
             <textarea
@@ -200,7 +199,7 @@ const CreateArticle = () => {
 
           {/* Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block b1 text-brown-400 mb-2">
               Content
             </label>
             <textarea

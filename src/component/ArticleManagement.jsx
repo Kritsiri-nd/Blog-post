@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const ArticleManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [filteredArticles, setFilteredArticles] = useState([]);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, articleId: null, articleTitle: '' });
 
   // Fetch all articles
   const fetchArticles = async () => {
@@ -73,19 +75,28 @@ const ArticleManagement = () => {
     navigate(`/admin/articles/edit/${articleId}`);
   };
 
-  const handleDeleteArticle = async (articleId) => {
-    if (window.confirm('Are you sure you want to delete this article?')) {
-      try {
-        // In a real app, you would call the delete API here
-        // await axios.delete(`https://blog-post-project-api.vercel.app/posts/${articleId}`);
-        
-        // For now, just remove from local state
-        setArticles(articles.filter(article => article.id !== articleId));
-        console.log('Article deleted:', articleId);
-      } catch (error) {
-        console.error('Error deleting article:', error);
-      }
+  const handleDeleteClick = (articleId, articleTitle) => {
+    setDeleteModal({ isOpen: true, articleId, articleTitle });
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      // In a real app, you would call the delete API here
+      // await axios.delete(`https://blog-post-project-api.vercel.app/posts/${deleteModal.articleId}`);
+      
+      // For now, just remove from local state
+      setArticles(articles.filter(article => article.id !== deleteModal.articleId));
+      console.log('Article deleted:', deleteModal.articleId);
+      
+      // Close modal
+      setDeleteModal({ isOpen: false, articleId: null, articleTitle: '' });
+    } catch (error) {
+      console.error('Error deleting article:', error);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, articleId: null, articleTitle: '' });
   };
 
 
@@ -229,7 +240,7 @@ const ArticleManagement = () => {
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDeleteArticle(article.id)}
+                      onClick={() => handleDeleteClick(article.id, article.title)}
                       className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                       title="Delete article"
                     >
@@ -247,6 +258,14 @@ const ArticleManagement = () => {
       <div className="mt-4 text-sm text-gray-500">
         Showing {filteredArticles.length} of {articles.length} articles
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        articleTitle={deleteModal.articleTitle}
+      />
     </div>
   );
 };
