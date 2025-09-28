@@ -18,6 +18,8 @@ import CreateArticle from "./component/CreateArticle";
 import CategoryManagement from "./component/CategoryManagement";
 import CreateCategory from "./component/CreateCategory";
 import EditCategory from "./component/EditCategory";
+import AdminProfile from "./component/AdminProfile";
+import AdminNotification from "./component/AdminNotification";
 
 function App() {
   return (
@@ -92,6 +94,16 @@ function App() {
         <Route path="/admin/categories/edit/:id" element={
           <AdminLayout>
             <EditCategory />
+          </AdminLayout>
+        } />
+        <Route path="/admin/profile" element={
+          <AdminLayout>
+            <AdminProfile />
+          </AdminLayout>
+        } />
+        <Route path="/admin/notifications" element={
+          <AdminLayout>
+            <AdminNotification />
           </AdminLayout>
         } />
         <Route path="*" element={
