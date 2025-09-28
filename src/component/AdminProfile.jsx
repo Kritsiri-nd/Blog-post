@@ -62,7 +62,7 @@ const AdminProfile = () => {
       </div>
 
       {/* Profile Form */}
-      <div className="bg-white rounded-lg shadow-sm p-6 max-w-4xl">
+      <div className="bg-white rounded-lg shadow-sm p-6">
         {/* Profile Picture Section */}
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">

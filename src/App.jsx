@@ -20,6 +20,7 @@ import CreateCategory from "./component/CreateCategory";
 import EditCategory from "./component/EditCategory";
 import AdminProfile from "./component/AdminProfile";
 import AdminNotification from "./component/AdminNotification";
+import AdminResetPassword from "./component/AdminResetPassword";
 
 function App() {
   return (
@@ -104,6 +105,11 @@ function App() {
         <Route path="/admin/notifications" element={
           <AdminLayout>
             <AdminNotification />
+          </AdminLayout>
+        } />
+        <Route path="/admin/reset-password" element={
+          <AdminLayout>
+            <AdminResetPassword />
           </AdminLayout>
         } />
         <Route path="*" element={

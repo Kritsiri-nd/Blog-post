@@ -42,7 +42,7 @@ const AdminNotification = () => {
       </div>
 
       {/* Notifications List */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-4xl">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {notifications.length === 0 ? (
           <div className="px-6 py-8 text-center text-gray-500">
             No notifications found.
