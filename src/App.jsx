@@ -15,6 +15,9 @@ import ResetPassword from "./component/ResetPassword";
 import AdminLayout from "./component/AdminLayout";
 import ArticleManagement from "./component/ArticleManagement";
 import CreateArticle from "./component/CreateArticle";
+import CategoryManagement from "./component/CategoryManagement";
+import CreateCategory from "./component/CreateCategory";
+import EditCategory from "./component/EditCategory";
 
 function App() {
   return (
@@ -74,6 +77,21 @@ function App() {
         <Route path="/admin/articles/create" element={
           <AdminLayout>
             <CreateArticle />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories" element={
+          <AdminLayout>
+            <CategoryManagement />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories/create" element={
+          <AdminLayout>
+            <CreateCategory />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories/edit/:id" element={
+          <AdminLayout>
+            <EditCategory />
           </AdminLayout>
         } />
         <Route path="*" element={

@@ -27,7 +27,7 @@ const AdminSidebar = () => {
       label: 'Category management',
       icon: FolderOpen,
       path: '/admin/categories',
-      active: location.pathname === '/admin/categories'
+      active: location.pathname.startsWith('/admin/categories')
     },
     {
       id: 'profile',

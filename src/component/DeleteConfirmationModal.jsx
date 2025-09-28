@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, articleTitle }) => {
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, articleTitle, type = "article" }) => {
   if (!isOpen) return null;
 
   return (
@@ -18,10 +18,10 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, articleTitle }) =
         {/* Modal content */}
         <div className="text-center">
           <h2 className="h3 text-brown-600 mb-2">
-            Delete article
+            Delete {type}
           </h2>
           <p className="b1 text-brown-400 mb-6">
-            Do you want to delete this article?
+            Do you want to delete this {type}?
           </p>
 
           {/* Action buttons */}
