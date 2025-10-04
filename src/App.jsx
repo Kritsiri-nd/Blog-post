@@ -12,6 +12,16 @@ import SignIn from "./component/SignIn";
 import SignUpSuccess from "./component/SignUpSuccess";
 import Profile from "./component/Profile";
 import ResetPassword from "./component/ResetPassword";
+import AdminLayout from "./component/AdminLayout";
+import ArticleManagement from "./component/ArticleManagement";
+import CreateArticle from "./component/CreateArticle";
+import CategoryManagement from "./component/CategoryManagement";
+import CreateCategory from "./component/CreateCategory";
+import EditCategory from "./component/EditCategory";
+import AdminProfile from "./component/AdminProfile";
+import AdminNotification from "./component/AdminNotification";
+import AdminResetPassword from "./component/AdminResetPassword";
+import AdminLogin from "./component/AdminLogin";
 
 function App() {
   return (
@@ -63,6 +73,47 @@ function App() {
             <ResetPassword />
           </>
         } />
+        <Route path="/admin/articles" element={
+          <AdminLayout>
+            <ArticleManagement />
+          </AdminLayout>
+        } />
+        <Route path="/admin/articles/create" element={
+          <AdminLayout>
+            <CreateArticle />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories" element={
+          <AdminLayout>
+            <CategoryManagement />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories/create" element={
+          <AdminLayout>
+            <CreateCategory />
+          </AdminLayout>
+        } />
+        <Route path="/admin/categories/edit/:id" element={
+          <AdminLayout>
+            <EditCategory />
+          </AdminLayout>
+        } />
+        <Route path="/admin/profile" element={
+          <AdminLayout>
+            <AdminProfile />
+          </AdminLayout>
+        } />
+        <Route path="/admin/notifications" element={
+          <AdminLayout>
+            <AdminNotification />
+          </AdminLayout>
+        } />
+        <Route path="/admin/reset-password" element={
+          <AdminLayout>
+            <AdminResetPassword />
+          </AdminLayout>
+        } />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="*" element={
           <>
             <Navbar />
