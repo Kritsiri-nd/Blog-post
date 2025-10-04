@@ -21,6 +21,7 @@ import EditCategory from "./component/EditCategory";
 import AdminProfile from "./component/AdminProfile";
 import AdminNotification from "./component/AdminNotification";
 import AdminResetPassword from "./component/AdminResetPassword";
+import AdminLogin from "./component/AdminLogin";
 
 function App() {
   return (
@@ -112,6 +113,7 @@ function App() {
             <AdminResetPassword />
           </AdminLayout>
         } />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="*" element={
           <>
             <Navbar />
