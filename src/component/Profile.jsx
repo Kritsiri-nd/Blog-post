@@ -82,112 +82,217 @@ const Profile = () => {
     }
 
     return (
-        <div className="min-h-screen bg-brown-100">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8 px-5">
+        <div className="min-h-screen bg-stone-50">
+            {/* Mobile Layout */}
+            <div className="lg:hidden">
+                {/* Top Navigation Tabs */}
+                <div className="flex items-center justify-center gap-8 py-4 px-4 border-b border-gray-200">
+                    <button
+                        onClick={() => navigate('/profile')}
+                        className="flex items-center gap-2 text-sm font-bold text-gray-900"
+                    >
+                        <User className="w-4 h-4" />
+                        Profile
+                    </button>
+                    <button
+                        onClick={() => navigate('/reset-password')}
+                        className="flex items-center gap-2 text-sm font-medium text-gray-500"
+                    >
+                        <Lock className="w-4 h-4" />
+                        Reset password
+                    </button>
+                </div>
+
+                {/* User Info Header */}
+                <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
                     <img
                         src={user?.avatar}
                         alt={user?.name}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-8 h-8 rounded-full object-cover"
                     />
-                    <span className="text-gray-600 text-xl">|</span>
-                    <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+                    <span className="text-gray-600">{user?.name || "Moodeng ja"}</span>
+                    <span className="text-gray-400">|</span>
+                    <span className="text-sm font-bold text-gray-900">Profile</span>
                 </div>
-                <div className="flex flex-col lg:flex-row gap-8">
 
-                    {/* Sidebar Navigation */}
-                    <div className="lg:w-64 flex-shrink-0">
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            {/* Navigation */}
-                            <nav className="space-y-2">
-                                <button
-                                    onClick={() => navigate('/profile')}
-                                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
-                                >
-                                    <User className="w-4 h-4" />
-                                    Profile
-                                </button>
-                                 <button
-                                     onClick={() => navigate('/reset-password')}
-                                     className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
-                                 >
-                                     <Lock className="w-4 h-4" />
-                                     Reset password
-                                 </button>
-                            </nav>
-                        </div>
+                {/* Main Content */}
+                <div className="px-4 py-8">
+                    {/* Profile Picture Section */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src={user?.avatar}
+                            alt={user?.name}
+                            className="w-32 h-32 rounded-full object-cover mb-6"
+                        />
+                        <button className="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            Upload profile picture
+                        </button>
                     </div>
 
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        <div className="bg-brown-200 rounded-lg shadow-sm p-8">
-                            {/* Profile Picture Section */}
-                            <div className="flex items-center gap-6 mb-8">
-                                <img
-                                    src={user?.avatar}
-                                    alt={user?.name}
-                                    className="w-24 h-24 rounded-full object-cover"
-                                />
-                                <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                    Upload profile picture
-                                </button>
+                    {/* Form */}
+                    <div className="mt-8 space-y-6">
+                        {/* Name Field */}
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                Name
+                            </label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Username Field */}
+                        <div>
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                                Username
+                            </label>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Email Field */}
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                Email
+                            </label>
+                            <div className="w-full px-3 py-2 text-gray-600 bg-transparent">
+                                {formData.email}
                             </div>
+                        </div>
 
-                            {/* Divider */}
-                            <hr className="border-gray-300 mb-8" />
+                        {/* Save Button */}
+                        <div className="pt-4">
+                            <button
+                                onClick={handleSave}
+                                disabled={isLoading}
+                                className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? 'Saving...' : 'Save'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            {/* Form */}
-                            <div className="space-y-6">
-                                {/* Name Field */}
-                                <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Name
-                                    </label>
-                                    <input
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-                                    />
-                                </div>
+            {/* Desktop Layout */}
+            <div className="hidden lg:block">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Header */}
+                    <div className="flex items-center gap-4 mb-8 px-5">
+                        <img
+                            src={user?.avatar}
+                            alt={user?.name}
+                            className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <span className="text-gray-600 text-xl">|</span>
+                        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+                    </div>
+                    <div className="flex flex-col lg:flex-row gap-8">
 
-                                {/* Username Field */}
-                                <div>
-                                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Username
-                                    </label>
-                                    <input
-                                        id="username"
-                                        name="username"
-                                        type="text"
-                                        value={formData.username}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-                                    />
-                                </div>
-
-                                {/* Email Field */}
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Email
-                                    </label>
-                                    <div className="w-full px-3 py-2 text-gray-600 bg-transparent">
-                                        {formData.email}
-                                    </div>
-                                </div>
-
-                                {/* Save Button */}
-                                <div className="pt-4">
+                        {/* Sidebar Navigation */}
+                        <div className="lg:w-64 flex-shrink-0">
+                            <div className="bg-white rounded-lg shadow-sm p-6">
+                                {/* Navigation */}
+                                <nav className="space-y-2">
                                     <button
-                                        onClick={handleSave}
-                                        disabled={isLoading}
-                                        className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        onClick={() => navigate('/profile')}
+                                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
                                     >
-                                        {isLoading ? 'Saving...' : 'Save'}
+                                        <User className="w-4 h-4" />
+                                        Profile
                                     </button>
+                                     <button
+                                         onClick={() => navigate('/reset-password')}
+                                         className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                                     >
+                                         <Lock className="w-4 h-4" />
+                                         Reset password
+                                     </button>
+                                </nav>
+                            </div>
+                        </div>
+
+                        {/* Main Content */}
+                        <div className="flex-1">
+                            <div className="bg-brown-200 rounded-lg shadow-sm p-8">
+                                {/* Profile Picture Section */}
+                                <div className="flex items-center gap-6 mb-8">
+                                    <img
+                                        src={user?.avatar}
+                                        alt={user?.name}
+                                        className="w-24 h-24 rounded-full object-cover"
+                                    />
+                                    <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                        Upload profile picture
+                                    </button>
+                                </div>
+
+                                {/* Divider */}
+                                <hr className="border-gray-300 mb-8" />
+
+                                {/* Form */}
+                                <div className="space-y-6">
+                                    {/* Name Field */}
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Name
+                                        </label>
+                                        <input
+                                            id="name"
+                                            name="name"
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    {/* Username Field */}
+                                    <div>
+                                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Username
+                                        </label>
+                                        <input
+                                            id="username"
+                                            name="username"
+                                            type="text"
+                                            value={formData.username}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    {/* Email Field */}
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Email
+                                        </label>
+                                        <div className="w-full px-3 py-2 text-gray-600 bg-transparent">
+                                            {formData.email}
+                                        </div>
+                                    </div>
+
+                                    {/* Save Button */}
+                                    <div className="pt-4">
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={isLoading}
+                                            className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isLoading ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

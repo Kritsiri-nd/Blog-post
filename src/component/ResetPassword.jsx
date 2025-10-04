@@ -111,128 +111,256 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-brown-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8 px-5">
+    <div className="min-h-screen bg-stone-50">
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        {/* Top Navigation Tabs */}
+        <div className="flex items-center justify-center gap-8 py-4 px-4 border-b border-gray-200">
+          <button
+            onClick={handleBackToProfile}
+            className="flex items-center gap-2 text-sm font-medium text-gray-500"
+          >
+            <User className="w-4 h-4" />
+            Profile
+          </button>
+          <button
+            className="flex items-center gap-2 text-sm font-bold text-gray-900"
+          >
+            <Lock className="w-4 h-4" />
+            Reset password
+          </button>
+        </div>
+
+        {/* User Info Header */}
+        <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
           <img
             src={user?.avatar}
             alt={user?.name}
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover"
           />
-          <span className="text-gray-600 text-xl">|</span>
-          <h1 className="text-2xl font-bold text-gray-900">Reset password</h1>
+          <span className="text-gray-600">{user?.name || "Moodeng ja"}</span>
+          <span className="text-gray-400">|</span>
+          <span className="text-sm font-bold text-gray-900">Reset password</span>
         </div>
-        
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* Navigation */}
-              <nav className="space-y-2">
+
+        {/* Main Content */}
+        <div className="px-4 py-8">
+          <div className="max-w-md mx-auto">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Change your password</h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Current Password */}
+              <div>
+                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  Current password
+                </label>
+                <input
+                  id="currentPassword"
+                  name="currentPassword"
+                  type="password"
+                  placeholder="Current password"
+                  value={formData.currentPassword}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                    errors.currentPassword ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.currentPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
+                )}
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  New password
+                </label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  placeholder="New password"
+                  value={formData.newPassword}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                    errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.newPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm new password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                )}
+              </div>
+
+              {/* Submit Error */}
+              {errors.submit && (
+                <div className="text-red-600 text-sm">
+                  {errors.submit}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <div className="pt-4">
                 <button
-                  onClick={handleBackToProfile}
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <User className="w-4 h-4" />
-                  Profile
+                  {isLoading ? 'Resetting...' : 'Reset password'}
                 </button>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg"
-                >
-                  <Lock className="w-4 h-4" />
-                  Reset password
-                </a>
-              </nav>
-            </div>
+              </div>
+            </form>
           </div>
+        </div>
+      </div>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            <div className="bg-brown-200 rounded-lg shadow-sm p-8">
-              <div className="max-w-md">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Change your password</h2>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Current Password */}
-                  <div>
-                    <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                      Current password
-                    </label>
-                    <input
-                      id="currentPassword"
-                      name="currentPassword"
-                      type="password"
-                      value={formData.currentPassword}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                        errors.currentPassword ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.currentPassword && (
-                      <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
-                    )}
-                  </div>
+      {/* Desktop Layout */}
+      <div className="hidden lg:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8 px-5">
+            <img
+              src={user?.avatar}
+              alt={user?.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <span className="text-gray-600 text-xl">|</span>
+            <h1 className="text-2xl font-bold text-gray-900">Reset password</h1>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar Navigation */}
+            <div className="lg:w-64 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                {/* Navigation */}
+                <nav className="space-y-2">
+                  <button
+                    onClick={handleBackToProfile}
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                  >
+                    <User className="w-4 h-4" />
+                    Profile
+                  </button>
+                  <a
+                    href="#"
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg"
+                  >
+                    <Lock className="w-4 h-4" />
+                    Reset password
+                  </a>
+                </nav>
+              </div>
+            </div>
 
-                  {/* New Password */}
-                  <div>
-                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                      New password
-                    </label>
-                    <input
-                      id="newPassword"
-                      name="newPassword"
-                      type="password"
-                      value={formData.newPassword}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                        errors.newPassword ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.newPassword && (
-                      <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
-                    )}
-                  </div>
-
-                  {/* Confirm Password */}
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm new password
-                    </label>
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                        errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.confirmPassword && (
-                      <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-                    )}
-                  </div>
-
-                  {/* Submit Error */}
-                  {errors.submit && (
-                    <div className="text-red-600 text-sm">
-                      {errors.submit}
+            {/* Main Content */}
+            <div className="flex-1">
+              <div className="bg-brown-200 rounded-lg shadow-sm p-8">
+                <div className="max-w-md">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Change your password</h2>
+                  
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Current Password */}
+                    <div>
+                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                        Current password
+                      </label>
+                      <input
+                        id="currentPassword"
+                        name="currentPassword"
+                        type="password"
+                        placeholder="Current password"
+                        value={formData.currentPassword}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                          errors.currentPassword ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {errors.currentPassword && (
+                        <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
+                      )}
                     </div>
-                  )}
 
-                  {/* Submit Button */}
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? 'Updating...' : 'Update password'}
-                    </button>
-                  </div>
-                </form>
+                    {/* New Password */}
+                    <div>
+                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                        New password
+                      </label>
+                      <input
+                        id="newPassword"
+                        name="newPassword"
+                        type="password"
+                        placeholder="New password"
+                        value={formData.newPassword}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                          errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                        }`} 
+                      />
+                      {errors.newPassword && (
+                        <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
+                      )}
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm new password
+                      </label>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Confirm new password"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
+                          errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {errors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                      )}
+                    </div>
+
+                    {/* Submit Error */}
+                    {errors.submit && (
+                      <div className="text-red-600 text-sm">
+                        {errors.submit}
+                      </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? 'Resetting...' : 'Reset password'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
