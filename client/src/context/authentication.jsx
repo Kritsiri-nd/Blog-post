@@ -125,6 +125,7 @@ function AuthProvider(props) {
     <AuthContext.Provider
       value={{
         state,
+        user: state.user, // เพิ่ม user property
         login,
         logout,
         register,

@@ -5,7 +5,7 @@ import { User, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Profile = () => {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, fetchUser } = useAuth();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -38,19 +38,35 @@ const Profile = () => {
         setIsLoading(true);
 
         try {
-            // Simulate API call to update profile
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Call real API to update profile
+            const response = await fetch('http://localhost:4001/auth/update-profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    username: formData.username
+                })
+            });
 
-            // Update user data in context (in real app, this would come from API)
-            // For now, we'll just show success
+            if (response.ok) {
+                const updatedUser = await response.json();
+                // Refresh user data in context
+                await fetchUser();
+                toast.success('Profile updated successfully!');
+                setIsEditing(true);
+                setShowSuccess(true);
 
-            setIsEditing(true);
-            setShowSuccess(true);
-
-            // Hide success message after 3 seconds
-            setTimeout(() => {
-                setShowSuccess(false);
-            }, 3000);
+                // Hide success message after 3 seconds
+                setTimeout(() => {
+                    setShowSuccess(false);
+                }, 3000);
+            } else {
+                const errorData = await response.json();
+                toast.error(errorData.error || 'Failed to update profile');
+            }
 
         } catch (error) {
             console.error('Error updating profile:', error);

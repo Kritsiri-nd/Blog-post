@@ -173,12 +173,12 @@ authRouter.put("/reset-password", protectUser, validateResetPassword, async (req
           email: userData.user.email,
           password: oldPassword,
         });
-  
+
       if (loginError) {
         return res.status(400).json({ error: "Invalid old password" });
       }
-  
-      // อัปเดตรหัสผ่านของผู้ใช้
+
+      // อัปเดตรหัสผ่านของผู้ใช้ด้วย session ที่ถูกต้อง
       const { data, error } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -195,8 +195,72 @@ authRouter.put("/reset-password", protectUser, validateResetPassword, async (req
       res.status(500).json({ error: "Internal server error" });
     }
   });
-  
-  
 
+// PUT /auth/update-profile - อัพเดทโปรไฟล์ผู้ใช้
+authRouter.put("/update-profile", protectUser, async (req, res) => {
+    const { name, username } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized: Token missing" });
+    }
+
+    try {
+        // ดึงข้อมูลผู้ใช้จาก token
+        const { data, error } = await supabase.auth.getUser(token);
+        if (error) {
+            return res.status(401).json({ error: "Unauthorized or token expired" });
+        }
+
+        const supabaseUserId = data.user.id;
+
+        // ตรวจสอบว่า username นี้มีคนใช้แล้วหรือไม่ (ถ้าเปลี่ยน username)
+        if (username) {
+            const { data: existingUser, error: usernameError } = await supabase
+                .from('users')
+                .select('username')
+                .eq('username', username)
+                .neq('id', supabaseUserId)
+                .single();
+
+            if (existingUser) {
+                return res.status(400).json({ error: "This username is already taken" });
+            }
+        }
+
+        // อัพเดทข้อมูลผู้ใช้ใน Supabase
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (username) updateData.username = username;
+
+        const { data: userData, error: updateError } = await supabase
+            .from('users')
+            .update(updateData)
+            .eq('id', supabaseUserId)
+            .select()
+            .single();
+
+        if (updateError) {
+            return res.status(500).json({ error: "Failed to update profile" });
+        }
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                id: data.user.id,
+                email: data.user.email,
+                username: userData.username,
+                name: userData.name,
+                role: userData.role,
+                profilePic: userData.profile_pic,
+            }
+        });
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+  
 export default authRouter;
 

@@ -67,29 +67,40 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call to reset password
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, you would call the API here
-      // For now, we'll just show success
-      
-      setShowSuccess(true);
-      
-      // Reset form
-      setFormData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      // Call real API to reset password
+      const response = await fetch('http://localhost:4001/auth/reset-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          oldPassword: formData.currentPassword,
+          newPassword: formData.newPassword
+        })
       });
-      
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 3000);
-      
+
+      if (response.ok) {
+        setShowSuccess(true);
+        
+        // Reset form
+        setFormData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        setErrors({ general: errorData.error || 'Failed to reset password' });
+      }
     } catch (error) {
-      console.error('Error resetting password:', error);
-      setErrors({ submit: 'Failed to reset password. Please try again.' });
+      console.error('Reset password error:', error);
+      setErrors({ general: 'An error occurred. Please try again.' });
     } finally {
       setIsLoading(false);
     }
