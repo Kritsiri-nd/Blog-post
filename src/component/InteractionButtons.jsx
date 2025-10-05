@@ -62,7 +62,74 @@ function InteractionButtons({ likes, postId }) {
 
   return (
     <>
-    <div className="flex items-center gap-4 mb-8">
+    {/* Mobile Layout */}
+    <div className="lg:hidden space-y-4">
+      {/* Top Row: Like Button */}
+      <div className="flex justify-start">
+        <button
+          onClick={handleLike}
+          className={`flex items-center justify-center gap-2 px-8 py-4 rounded-lg border transition-colors w-full max-w-xs ${
+            isLiked 
+              ? 'bg-green-50 text-green-600 border-green-200' 
+              : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
+          }`}
+        >
+          <span className="text-lg">😊</span>
+          <span className="text-xs font-medium">{likeCount}</span>
+        </button>
+      </div>
+
+      {/* Bottom Row: Copy Link and Social Media Buttons */}
+      <div className="flex items-center justify-between gap-3">
+        {/* Copy Link Button */}
+        <button
+          onClick={handleCopyLink}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-white text-gray-800 border-gray-200 hover:bg-gray-50 transition-colors"
+        >
+          <span className="text-sm">🔗</span>
+          <span className="text-xs font-medium">Copy link</span>
+        </button>
+
+        {/* Social Media Share Buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleShare("facebook")}
+            className="w-10 h-10 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105"
+          >
+            <img 
+              src={FacebookIcon} 
+              alt="Facebook" 
+              className="w-6 h-6"
+            />
+          </button>
+          
+          <button
+            onClick={() => handleShare("linkedin")}
+            className="w-10 h-10 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105"
+          >
+            <img 
+              src={LinkedInIcon} 
+              alt="LinkedIn" 
+              className="w-6 h-6"
+            />
+          </button>
+          
+          <button
+            onClick={() => handleShare("twitter")}
+            className="w-10 h-10 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105"
+          >
+            <img 
+              src={TwitterIcon} 
+              alt="Twitter" 
+              className="w-6 h-6"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* Desktop Layout */}
+    <div className="hidden lg:flex items-center gap-4 mb-8">
       {/* Like Button */}
       <button
         onClick={handleLike}
@@ -86,10 +153,10 @@ function InteractionButtons({ likes, postId }) {
       </button>
 
       {/* Social Media Share Buttons */}
-      <div className="flex items-center ">
+      <div className="flex items-center">
         <button
           onClick={() => handleShare("facebook")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 shadow-sm border border-gray-200"
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
         >
           <img 
             src={FacebookIcon} 
@@ -100,7 +167,7 @@ function InteractionButtons({ likes, postId }) {
         
         <button
           onClick={() => handleShare("linkedin")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 shadow-sm border border-gray-200"
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
         >
           <img 
             src={LinkedInIcon} 
@@ -111,7 +178,7 @@ function InteractionButtons({ likes, postId }) {
         
         <button
           onClick={() => handleShare("twitter")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 shadow-sm border border-gray-200"
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
         >
           <img 
             src={TwitterIcon} 

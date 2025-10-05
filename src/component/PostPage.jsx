@@ -132,7 +132,7 @@ function PostPage() {
             </div>
 
             {/* Title */}
-            <h1 className="h2 mb-6 text-brown-600">{post.title}</h1>
+            <h1 className="sm:h2 h3 mb-6 text-brown-600">{post.title}</h1>
 
             {/* Description */}
             <p className="b1 mb-8 leading-relaxed text-brown-500">
@@ -141,18 +141,50 @@ function PostPage() {
 
             {/* Content */}
             <div className="markdown">
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+              <ReactMarkdown >{post.content}</ReactMarkdown>
             </div>
 
-            {/* Interaction Buttons */}
-            <InteractionButtons likes={post.likes} postId={post.id} />
+            {/* Desktop Interaction Buttons - Only visible on desktop */}
+            <div className="hidden lg:block">
+              <InteractionButtons likes={post.likes} postId={post.id} />
+            </div>
+
+            {/* Mobile Author Card - Only visible on mobile */}
+            <div className="lg:hidden bg-white rounded-lg shadow-lg p-6 mb-8">
+              {/* Author Section */}
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Author</div>
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src="/src/assets/authorPhoto.jpg"
+                    alt={post.author}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800">{post.author}</h4>
+                  </div>
+                </div>
+                
+                {/* Author Bio */}
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  I am a pet enthusiast and freelance writer who specializes in animal behavior and care. 
+                  With a deep love for cats, I enjoy sharing insights on feline companionship and wellness. 
+                  When I'm not writing, I spend time volunteering at my local animal shelter, helping cats find loving homes.
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile Interaction Buttons - Only visible on mobile */}
+            <div className="lg:hidden bg-white rounded-lg shadow-lg p-6 mb-8">
+              <InteractionButtons likes={post.likes} postId={post.id} />
+            </div>
 
             {/* Comment Section */}
             <CommentSection />
           </article>
 
-          {/* Author Sidebar */}
-          <aside className="lg:w-80 lg:flex-shrink-0">
+          {/* Desktop Author Sidebar - Only visible on desktop */}
+          <aside className="hidden lg:block lg:w-80 lg:flex-shrink-0">
             <div 
               className="rounded-lg p-6 bg-brown-200 sticky-sidebar"
               style={{ 
