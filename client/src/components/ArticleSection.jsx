@@ -1,14 +1,15 @@
 import Search from "../assets/Search.png";
 import * as React from "react";
 import axios from "axios";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// UI components - using simple HTML elements instead of shadcn/ui
+// import {
+//   Select,
+//   SelectContent,
+//   SelectGroup,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import BlogCard from "./BlogCard";
 import SearchBar from "./SearchBar";
 
@@ -113,20 +114,17 @@ function ArticleSection() {
 
           {/* Category Select */}
           <div className="relative flex">
-            <Select value={category} onValueChange={(val) => setCategory(val)}>
-              <SelectTrigger className="w-full bg-white rounded-lg p-2 b1 text-brown-600 border border-brown-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <select 
+              value={category} 
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-white rounded-lg p-2 b1 text-brown-600 border border-brown-300 focus:outline-none focus:ring-2 focus:ring-brown-500"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         </div>

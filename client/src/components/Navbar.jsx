@@ -2,12 +2,13 @@ import Button from "./Button"
 import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authentication.jsx";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+// UI components - using simple HTML elements instead of shadcn/ui
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuTrigger,
+//   DropdownMenuItem,
+// } from "@/components/ui/dropdown-menu";
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -31,10 +32,10 @@ function Navbar() {
             </div>
 
             {/* User Profile Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 focus:outline-none">
+            <div className="relative group">
+              <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
                 <img
-                  src={user?.avatar}
+                  src={user?.avatar || "/default-avatar.png"}
                   alt={user?.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -42,23 +43,19 @@ function Navbar() {
                   {user?.name}
                 </span>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48">
-                <DropdownMenuItem>
-                  <Link to="/profile" className="w-full">
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/settings" className="w-full">
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+                  Profile
+                </Link>
+                <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  Settings
+                </Link>
+                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg">
                   Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           // Login/Signup Buttons
@@ -73,11 +70,11 @@ function Navbar() {
         )}
       </div>
       {/* Mobile Navigation */}
-      <DropdownMenu>
-        <DropdownMenuTrigger className="sm:hidden focus:outline-none">
+      <div className="sm:hidden relative">
+        <button className="focus:outline-none">
           <Menu className="w-6 h-6 text-gray-700" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="sm:hidden w-screen h-screen rounded-none mt-0 flex flex-col bg-stone-50 border-none shadow-lg">
+        </button>
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
           {isAuthenticated ? (
             // Mobile User Profile
             <div className="flex flex-col h-full">
@@ -159,8 +156,8 @@ function Navbar() {
               </div>
             </div>
           )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </div>
+      </div>
     </nav>
   )
 }
