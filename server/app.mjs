@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { validatePutPost } from './middleware/validation.js';
 dotenv.config();
 const app = express();
 // const port = process.env.PORT || 4001;
@@ -56,7 +57,7 @@ app.get("/posts/:postId", async (req, res) => {
 });
 
 // PUT /posts/:postId - แก้ไขบทความที่มีอยู่
-app.put("/posts/:postId", async (req, res) => {
+app.put("/posts/:postId", validatePutPost, async (req, res) => {
     try {
         const { postId } = req.params;
         
@@ -78,13 +79,13 @@ app.put("/posts/:postId", async (req, res) => {
 
         // สร้าง update object เฉพาะ fields ที่มีค่า
         const updateFields = {};
-        if (title) updateFields.title = title;
-        if (content) updateFields.content = content;
-        if (category_id) updateFields.category_id = category_id;
-        if (description) updateFields.description = description;
-        if (image) updateFields.image = image;
-        if (status_id) updateFields.status_id = status_id;
-        if (date) updateFields.date = date;
+        if (title !== undefined) updateFields.title = title;
+        if (content !== undefined) updateFields.content = content;
+        if (category_id !== undefined) updateFields.category_id = category_id;
+        if (description !== undefined) updateFields.description = description;
+        if (image !== undefined) updateFields.image = image;
+        if (status_id !== undefined) updateFields.status_id = status_id;
+        if (date !== undefined) updateFields.date = date;
         if (likes_count !== undefined) updateFields.likes_count = likes_count;
 
         // อัพเดทข้อมูลใน Supabase
