@@ -80,9 +80,9 @@ function ArticleSection() {
 
   return (
     <section className="w-full mx-auto max-w-[1200px] p-10">
-      <div className="bg-brown-200 px-10">
+      <div>
         <h1 className="h3">Latest articles</h1>
-
+        <div className="bg-brown-200 mt-2 px-10">
         {/* Desktop: Category buttons + Search */}
         <div className="sm:flex hidden gap-4 py-10 px-10">
           {categories.map((cat) => (
@@ -128,6 +128,7 @@ function ArticleSection() {
               </SelectContent>
             </Select>
           </div>
+        </div>
         </div>
       </div>
 
