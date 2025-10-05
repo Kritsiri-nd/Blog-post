@@ -115,6 +115,18 @@ function AppRoutes() {
       } />
 
       {/* เส้นทางที่เฉพาะผู้ดูแลระบบ (admin) เข้าถึงได้ */}
+      <Route path="/admin" element={
+        <ProtectedRoute
+          isLoading={isLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={user?.role}
+          requiredRole="admin"
+        >
+          <AdminLayout>
+            <AdminProfile />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/admin/articles" element={
         <ProtectedRoute
           isLoading={isLoading}
