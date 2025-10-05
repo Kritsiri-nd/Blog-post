@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import protectUser from "../middleware/protectUser.mjs";
 import protectAdmin from "../middleware/protectAdmin.mjs";
 import { validateRegister, validateLogin, validateResetPassword } from "../middleware/authValidation.js";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
