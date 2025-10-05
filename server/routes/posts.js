@@ -1,6 +1,6 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
-import { validatePutPost } from '../middleware/validation.js';
+import { validatePutPost, validatePostPost } from '../middleware/validation.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,6 +11,41 @@ const router = express.Router();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// POST /posts - สร้างบทความใหม่
+router.post("/", validatePostPost, async (req, res) => {
+    try {
+        const { title, image, category_id, description, content, status_id } = req.body;
+
+        // สร้างบทความใน Supabase
+        const { data, error } = await supabase
+            .from('posts')
+            .insert({
+                title,
+                image,
+                category_id,
+                description,
+                content,
+                status_id,
+                date: new Date().toISOString(), // เพิ่มวันที่ปัจจุบัน
+                likes_count: 0 // เริ่มต้นด้วย 0 likes
+            })
+            .select();
+
+        if (error) {
+            throw error;
+        }
+
+        res.status(201).json({
+            "message": "Post created successfully",
+            "data": data[0]
+        });
+
+    } catch (error) {
+        console.error('Server could not create post because database connection:', error);
+        res.status(500).json({ "error": error.message });
+    }
+});
 
 // GET /posts - ดึงข้อมูลบทความทั้งหมด (พร้อม pagination และ filter)
 router.get("/", async (req, res) => {
@@ -80,9 +115,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error('Server could not read post because database connection:', error);
-        res.status(500).json({ 
-            "message": "Server could not read post because database connection" 
-        });
+        res.status(500).json({ "error": error.message });
     }
 });
 
@@ -199,9 +232,7 @@ router.delete("/:postId", async (req, res) => {
 
     } catch (error) {
         console.error('Server could not delete post because database connection:', error);
-        res.status(500).json({ 
-            "message": "Server could not delete post because database connection" 
-        });
+        res.status(500).json({ "error": error.message });
     }
 });
 
