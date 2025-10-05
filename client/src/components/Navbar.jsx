@@ -1,20 +1,40 @@
+import React from "react";
 import Button from "./Button"
 import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authentication.jsx";
-// UI components - using simple HTML elements instead of shadcn/ui
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuTrigger,
-//   DropdownMenuItem,
-// } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "./ui/dropdown-menu";
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
+    setIsMobileMenuOpen(false); // Close mobile menu after logout
   };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Close mobile menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.mobile-menu-container')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <nav className="w-full  mx-auto flex items-center justify-between py-4 px-20 border border-[#DAD6D1]">
@@ -32,30 +52,39 @@ function Navbar() {
             </div>
 
             {/* User Profile Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
-                <img
-                  src={user?.avatar || "/default-avatar.png"}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {user?.name}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
-                  Profile
-                </Link>
-                <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  Settings
-                </Link>
-                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg">
-                  Logout
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
+                  <img
+                    src={user?.profilePic || "/default-avatar.png"}
+                    alt={user?.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.name}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
-              </div>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/reset-password" className="flex items-center gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Password
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 ">
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ) : (
           // Login/Signup Buttons
@@ -70,18 +99,22 @@ function Navbar() {
         )}
       </div>
       {/* Mobile Navigation */}
-      <div className="sm:hidden relative">
-        <button className="focus:outline-none">
+      <div className="sm:hidden relative mobile-menu-container">
+        <button 
+          onClick={toggleMobileMenu}
+          className="focus:outline-none"
+        >
           <Menu className="w-6 h-6 text-gray-700" />
         </button>
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        {isMobileMenuOpen && (
+          <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
           {isAuthenticated ? (
             // Mobile User Profile
             <div className="flex flex-col h-full">
               {/* User Profile Section */}
               <div className="flex items-center gap-3 p-4 border-b border-gray-200">
                 <img
-                  src={user?.avatar || "/default-avatar.png"}
+                  src={user?.profilePic || "/default-avatar.png"}
                   alt={user?.name || "User"}
                   className="w-12 h-12 rounded-full object-cover"
                 />
@@ -100,6 +133,7 @@ function Navbar() {
                   {/* Profile Link */}
                   <Link
                     to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <User className="w-5 h-5" />
@@ -108,6 +142,7 @@ function Navbar() {
                   {/* Reset Password Link */}
                   <Link
                     to="/reset-password"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <RotateCcw className="w-5 h-5" />
@@ -143,12 +178,14 @@ function Navbar() {
               <div className="flex-1 p-4 flex flex-col justify-center gap-4">
                 <Link
                   to="/signin"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="px-8 py-4 bg-white rounded-full text-center text-gray-700 border border-gray-300 hover:border-gray-400 hover:text-gray-800 transition-colors"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/signup"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="px-8 py-4 bg-gray-800 text-center text-white rounded-full hover:bg-gray-700 transition-colors"
                 >
                   Sign up
@@ -156,7 +193,8 @@ function Navbar() {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </nav>
   )

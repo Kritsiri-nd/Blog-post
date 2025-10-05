@@ -1,30 +1,71 @@
 import * as React from "react";
 import { toast } from "sonner";
+import axios from "axios";
 import FacebookIcon from "../assets/Facebook_ic.png";
 import LinkedInIcon from "../assets/LinkedIN_ic.png";
 import TwitterIcon from "../assets/Twitter_ic.png";
 import LoginModal from "./LoginModal";
+import { useAuth } from "../context/authentication.jsx";
 
 function InteractionButtons({ likes, postId }) {
   const [likeCount, setLikeCount] = React.useState(likes || 0);
   const [isLiked, setIsLiked] = React.useState(false);
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   
-  // Simulate user not logged in (as per requirement)
-  const isLoggedIn = false;
+  // Use real authentication context
+  const { isAuthenticated, user } = useAuth();
 
-  const handleLike = () => {
-    if (!isLoggedIn) {
+  // ดึง like status จาก Server เมื่อ component โหลด
+  React.useEffect(() => {
+    const fetchLikeStatus = async () => {
+      if (!isAuthenticated || !user) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:4001/posts/${postId}/like-status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        setLikeCount(response.data.likeCount);
+        setIsLiked(response.data.isLiked);
+      } catch (error) {
+        console.error('Error fetching like status:', error);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [postId, isAuthenticated, user]);
+
+  const handleLike = async () => {
+    if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
     
-    if (isLiked) {
-      setLikeCount(prev => prev - 1);
-    } else {
-      setLikeCount(prev => prev + 1);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // ส่ง POST request เดียว - server จะจัดการ toggle ให้
+      const response = await axios.post(`http://localhost:4001/posts/${postId}/like`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // อัปเดต state ตาม response
+      if (response.data.action === 'liked') {
+        setLikeCount(prev => prev + 1);
+        setIsLiked(true);
+        toast.success("Liked!");
+      } else if (response.data.action === 'unliked') {
+        setLikeCount(prev => prev - 1);
+        setIsLiked(false);
+        toast.success("Unliked!");
+      }
+    } catch (error) {
+      console.error('Like error:', error);
+      toast.error("Failed to update like");
     }
-    setIsLiked(!isLiked);
   };
 
   const handleCopyLink = () => {

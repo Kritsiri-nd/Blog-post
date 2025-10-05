@@ -45,7 +45,7 @@ const SignIn = () => {
     setIsLoading(true);
     
     try {
-      const result = await login(formData);
+      const result = await login(formData.email, formData.password);
       
       if (result.success) {
         navigate('/');

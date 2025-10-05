@@ -12,11 +12,7 @@ const AdminLogin = () => {
   const [showError, setShowError] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Mock admin credentials
-  const ADMIN_CREDENTIALS = {
-    email: 'adminthompson@gmail.com',
-    password: 'admin123'
-  };
+  // Admin credentials will be validated against Supabase
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

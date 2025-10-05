@@ -24,7 +24,7 @@ function PostPage() {
     
     try {
       const response = await axios.get(
-        `https://blog-post-project-api.vercel.app/posts/${postId}`
+        `http://localhost:4001/posts/${postId}`
       );
       setPost(response.data);
     } catch (error) {
@@ -180,7 +180,7 @@ function PostPage() {
             </div>
 
             {/* Comment Section */}
-            <CommentSection />
+            <CommentSection postId={post.id} />
           </article>
 
           {/* Desktop Author Sidebar - Only visible on desktop */}

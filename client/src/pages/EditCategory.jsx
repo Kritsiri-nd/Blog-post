@@ -10,19 +10,9 @@ const EditCategory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Mock categories data
-  const mockCategories = [
-    { id: 1, name: 'Cat' },
-    { id: 2, name: 'General' },
-    { id: 3, name: 'Inspiration' }
-  ];
-
   useEffect(() => {
-    // Find the category to edit
-    const category = mockCategories.find(cat => cat.id === parseInt(id));
-    if (category) {
-      setCategoryName(category.name);
-    }
+    // Load category data from Supabase
+    // TODO: Implement Supabase integration
   }, [id]);
 
   const handleSave = async () => {
