@@ -139,7 +139,7 @@ function ArticleSection() {
             key={`${post.id}-${category}-${page}`}
             id={post.id}
             image={post.image}
-            category={post.category}
+            category={post.categories?.name || post.category}
             title={post.title}
             description={post.description}
             author={post.author}

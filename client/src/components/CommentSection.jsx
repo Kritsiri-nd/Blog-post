@@ -1,8 +1,10 @@
 import * as React from "react";
+import axios from "axios";
+import { toast } from "sonner";
 import LoginModal from "./LoginModal";
 import { useAuth } from "../context/authentication.jsx";
 
-function CommentSection() {
+function CommentSection({ postId }) {
   const [comments, setComments] = React.useState([]);
   const [newComment, setNewComment] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -10,6 +12,20 @@ function CommentSection() {
   
   // Use real authentication context
   const { isAuthenticated } = useAuth();
+
+  // ดึง comments จาก Server เมื่อ component โหลด
+  React.useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4001/posts/${postId}/comments`);
+        setComments(response.data.comments || []);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+
+    fetchComments();
+  }, [postId]);
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -22,26 +38,42 @@ function CommentSection() {
 
     setIsSubmitting(true);
     
-    // TODO: Implement Supabase comment creation
-    // For now, just add to local state
-    const comment = {
-      id: comments.length + 1,
-      author: "You",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face",
-      date: new Date().toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      content: newComment.trim()
-    };
-    
-    setComments(prev => [...prev, comment]);
-    setNewComment("");
-    setIsSubmitting(false);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`http://localhost:4001/posts/${postId}/comments`, {
+        content: newComment.trim()
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Add comment to local state
+      const newCommentData = {
+        id: response.data.comment.id,
+        author: response.data.comment.author_name,
+        avatar: response.data.comment.author_avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face",
+        date: new Date(response.data.comment.created_at).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        content: response.data.comment.content
+      };
+      
+      setComments(prev => [...prev, newCommentData]);
+      setNewComment("");
+      toast.success("Comment added!");
+    } catch (error) {
+      console.error('Comment error:', error);
+      toast.error("Failed to add comment");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <div className="mt-12">
@@ -95,13 +127,15 @@ function CommentSection() {
             
             {/* Comment Content */}
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)' }}>
-                  {comment.author}
-                </h4>
-                <span className="b3" style={{ color: 'var(--brown-400)' }}>
-                  {comment.date}
-                </span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)' }}>
+                    {comment.author}
+                  </h4>
+                  <span className="b3" style={{ color: 'var(--brown-400)' }}>
+                    {comment.date}
+                  </span>
+                </div>
               </div>
               <p className="b1 leading-relaxed" style={{ color: 'var(--brown-500)' }}>
                 {comment.content}

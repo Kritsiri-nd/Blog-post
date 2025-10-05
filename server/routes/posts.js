@@ -238,4 +238,297 @@ router.delete("/:postId", protectAdmin, async (req, res) => {
     }
 });
 
+// GET /posts/:postId/like-status - ตรวจสอบ like status
+router.get("/:postId/like-status", protectUser, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const token = req.headers.authorization?.split(" ")[1];
+        
+        // ดึงข้อมูล user จาก token
+        const { data: userData, error: userError } = await supabase.auth.getUser(token);
+        if (userError) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        
+        const userId = userData.user.id;
+        
+        // ดึงข้อมูล post
+        const { data: post, error: postError } = await supabase
+            .from('posts')
+            .select('likes_count')
+            .eq('id', postId)
+            .single();
+            
+        if (postError) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+        
+        // ตรวจสอบว่า user เคย like post นี้หรือไม่
+        const { data: existingLike, error: likeError } = await supabase
+            .from('likes')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('post_id', postId)
+            .single();
+            
+        res.status(200).json({
+            likeCount: post.likes_count || 0,
+            isLiked: !!existingLike
+        });
+        
+    } catch (error) {
+        console.error('Like status error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+// POST /posts/:postId/like - เพิ่ม like
+router.post("/:postId/like", protectUser, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const token = req.headers.authorization?.split(" ")[1];
+        
+        // ดึงข้อมูล user จาก token
+        const { data: userData, error: userError } = await supabase.auth.getUser(token);
+        if (userError) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        
+        const userId = userData.user.id;
+        
+        // ตรวจสอบว่า user เคย like post นี้แล้วหรือไม่
+        const { data: existingLike, error: likeError } = await supabase
+            .from('likes')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('post_id', postId)
+            .single();
+            
+        if (existingLike) {
+            // ถ้าเคย like แล้ว ให้ unlike แทน
+            await supabase
+                .from('likes')
+                .delete()
+                .eq('user_id', userId)
+                .eq('post_id', postId);
+            
+            // ลด likes_count ใน posts table
+            const { data: currentPost } = await supabase
+                .from('posts')
+                .select('likes_count')
+                .eq('id', postId)
+                .single();
+                
+            if (currentPost) {
+                await supabase
+                    .from('posts')
+                    .update({ likes_count: Math.max(0, currentPost.likes_count - 1) })
+                    .eq('id', postId);
+            }
+                
+            return res.status(200).json({
+                message: "Like removed successfully",
+                action: "unliked"
+            });
+        }
+        
+        // เพิ่ม like ใน Supabase
+        const { data, error } = await supabase
+            .from('likes')
+            .insert({
+                user_id: userId,
+                post_id: postId
+            })
+            .select()
+            .single();
+            
+        if (error) {
+            return res.status(500).json({ error: "Failed to add like" });
+        }
+        
+        // เพิ่ม likes_count ใน posts table
+        const { data: currentPost } = await supabase
+            .from('posts')
+            .select('likes_count')
+            .eq('id', postId)
+            .single();
+            
+        if (currentPost) {
+            await supabase
+                .from('posts')
+                .update({ likes_count: (currentPost.likes_count || 0) + 1 })
+                .eq('id', postId);
+        }
+        
+        res.status(201).json({
+            message: "Like added successfully",
+            action: "liked",
+            like: data
+        });
+        
+    } catch (error) {
+        console.error('Like error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+// GET /posts/:postId/comments - ดึง comments
+router.get("/:postId/comments", async (req, res) => {
+    try {
+        const { postId } = req.params;
+        
+        // ดึง comments จาก Supabase
+        const { data: comments, error } = await supabase
+            .from('comments')
+            .select(`
+                id,
+                comment_text,
+                created_at,
+                users!inner(name, profile_pic)
+            `)
+            .eq('post_id', postId)
+            .order('created_at', { ascending: false });
+            
+        if (error) {
+            console.error('Comments fetch error:', error);
+            return res.status(500).json({ error: "Failed to fetch comments" });
+        }
+        
+        // Format comments data
+        const formattedComments = comments.map(comment => ({
+            id: comment.id,
+            content: comment.comment_text,
+            created_at: comment.created_at,
+            author_name: comment.users.name,
+            author_avatar: comment.users.profile_pic
+        }));
+        
+        res.status(200).json({
+            comments: formattedComments
+        });
+        
+    } catch (error) {
+        console.error('Comments error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+// POST /posts/:postId/comments - เพิ่ม comment
+router.post("/:postId/comments", protectUser, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { content } = req.body;
+        const token = req.headers.authorization?.split(" ")[1];
+        
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: "Content is required" });
+        }
+        
+        // ดึงข้อมูล user จาก token
+        const { data: userData, error: userError } = await supabase.auth.getUser(token);
+        if (userError) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        
+        const userId = userData.user.id;
+        
+        // ดึงข้อมูล user profile
+        const { data: userProfile, error: profileError } = await supabase
+            .from('users')
+            .select('name, profile_pic')
+            .eq('id', userId)
+            .single();
+            
+        if (profileError) {
+            console.error('Profile error:', profileError);
+            return res.status(500).json({ error: "Failed to get user profile" });
+        }
+        
+        // เพิ่ม comment ใน Supabase
+        const { data, error } = await supabase
+            .from('comments')
+            .insert({
+                user_id: userId,
+                post_id: postId,
+                comment_text: content.trim()
+            })
+            .select()
+            .single();
+            
+        if (error) {
+            console.error('Comment insert error:', error);
+            return res.status(500).json({ error: "Failed to add comment", details: error.message });
+        }
+        
+        // ไม่ต้องอัปเดต comments_count เพราะ column ไม่มีใน posts table
+        
+        res.status(201).json({
+            message: "Comment added successfully",
+            comment: {
+                id: data.id,
+                content: data.comment_text,
+                created_at: data.created_at,
+                author_name: userProfile.name,
+                author_avatar: userProfile.profile_pic
+            }
+        });
+        
+    } catch (error) {
+        console.error('Comment error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+// DELETE /posts/:postId/comments/:commentId - ลบ comment
+router.delete("/:postId/comments/:commentId", protectUser, async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const token = req.headers.authorization?.split(" ")[1];
+        
+        // ดึงข้อมูล user จาก token
+        const { data: userData, error: userError } = await supabase.auth.getUser(token);
+        if (userError) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        
+        const userId = userData.user.id;
+        
+        // ตรวจสอบว่า comment เป็นของ user นี้หรือไม่
+        const { data: comment, error: commentError } = await supabase
+            .from('comments')
+            .select('user_id')
+            .eq('id', commentId)
+            .eq('post_id', postId)
+            .single();
+            
+        if (commentError || !comment) {
+            return res.status(404).json({ error: "Comment not found" });
+        }
+        
+        if (comment.user_id !== userId) {
+            return res.status(403).json({ error: "Not authorized to delete this comment" });
+        }
+        
+        // ลบ comment จาก Supabase
+        const { error } = await supabase
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+            
+        if (error) {
+            return res.status(500).json({ error: "Failed to delete comment" });
+        }
+        
+        // ไม่ต้องอัปเดต comments_count เพราะ column ไม่มีใน posts table
+        
+        res.status(200).json({
+            message: "Comment deleted successfully"
+        });
+        
+    } catch (error) {
+        console.error('Delete comment error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export default router;
