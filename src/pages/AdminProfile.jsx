@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
-import SuccessNotification from './SuccessNotification';
+import SuccessNotification from '../components/SuccessNotification';
 
 const AdminProfile = () => {
   const [formData, setFormData] = useState({

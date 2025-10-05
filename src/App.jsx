@@ -1,27 +1,30 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./component/Navbar";
-import Footer from "./component/Footer";
-import HeroSection from "./component/HeroSection";
-import ArticleSection from "./component/ArticleSection";
-import PostPage from "./component/PostPage";
-import NotFoundPage from "./component/NotFoundPage";
-import SignUp from "./component/SignUp";
-import SignIn from "./component/SignIn";
-import SignUpSuccess from "./component/SignUpSuccess";
-import Profile from "./component/Profile";
-import ResetPassword from "./component/ResetPassword";
-import AdminLayout from "./component/AdminLayout";
-import ArticleManagement from "./component/ArticleManagement";
-import CreateArticle from "./component/CreateArticle";
-import CategoryManagement from "./component/CategoryManagement";
-import CreateCategory from "./component/CreateCategory";
-import EditCategory from "./component/EditCategory";
-import AdminProfile from "./component/AdminProfile";
-import AdminNotification from "./component/AdminNotification";
-import AdminResetPassword from "./component/AdminResetPassword";
-import AdminLogin from "./component/AdminLogin";
+// Components
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HeroSection from "./components/HeroSection";
+import ArticleSection from "./components/ArticleSection";
+import AdminLayout from "./components/AdminLayout";
+
+// Pages
+import PostPage from "./pages/PostPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import SignUp from "./pages/SignUp";
+import SignIn from "./pages/SignIn";
+import SignUpSuccess from "./pages/SignUpSuccess";
+import Profile from "./pages/Profile";
+import ResetPassword from "./pages/ResetPassword";
+import ArticleManagement from "./pages/ArticleManagement";
+import CreateArticle from "./pages/CreateArticle";
+import CategoryManagement from "./pages/CategoryManagement";
+import CreateCategory from "./pages/CreateCategory";
+import EditCategory from "./pages/EditCategory";
+import AdminProfile from "./pages/AdminProfile";
+import AdminNotification from "./pages/AdminNotification";
+import AdminResetPassword from "./pages/AdminResetPassword";
+import AdminLogin from "./pages/AdminLogin";
 
 function App() {
   return (

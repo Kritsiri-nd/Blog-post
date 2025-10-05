@@ -2,8 +2,8 @@ import * as React from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { useParams, useNavigate } from "react-router-dom";
-import InteractionButtons from "./InteractionButtons";
-import CommentSection from "./CommentSection";
+import InteractionButtons from "../components/InteractionButtons";
+import CommentSection from "../components/CommentSection";
 
 function PostPage() {
   const { postId } = useParams();

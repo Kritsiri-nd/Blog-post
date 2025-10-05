@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, X } from 'lucide-react';
-import SuccessNotification from './SuccessNotification';
+import SuccessNotification from '../components/SuccessNotification';
 
 const AdminResetPassword = () => {
   const navigate = useNavigate();

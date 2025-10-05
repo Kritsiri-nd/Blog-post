@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import SuccessNotification from './SuccessNotification';
+import SuccessNotification from '../components/SuccessNotification';
 
 const EditCategory = () => {
   const navigate = useNavigate();
