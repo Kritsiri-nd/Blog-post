@@ -141,7 +141,7 @@ function PostPage() {
 
             {/* Content */}
             <div className="markdown">
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+              <ReactMarkdown >{post.content}</ReactMarkdown>
             </div>
 
             {/* Desktop Interaction Buttons - Only visible on desktop */}
