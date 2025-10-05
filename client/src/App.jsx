@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
-import { AuthProvider, useAuth } from "./context/authentication";
+import { AuthProvider, useAuth } from "./context/authentication.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AuthenticationRoute from "./components/auth/AuthenticationRoute";
 // Components
