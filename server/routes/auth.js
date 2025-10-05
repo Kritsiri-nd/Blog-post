@@ -18,17 +18,13 @@ authRouter.post("/register", validateRegister, async (req, res) => {
 
     try {
         // ตรวจสอบว่า username มีในฐานข้อมูลหรือไม่
-        const usernameCheckQuery = `
-                                  SELECT * FROM users 
-                                  WHERE username = $1
-                                 `;
-        const usernameCheckValues = [username];
-        const { rows: existingUser } = await connectionPool.query(
-            usernameCheckQuery,
-            usernameCheckValues
-        );
+        const { data: existingUser, error: usernameError } = await supabase
+            .from('users')
+            .select('username')
+            .eq('username', username)
+            .single();
 
-        if (existingUser.length > 0) {
+        if (existingUser) {
             return res.status(400).json({ error: "This username is already taken" });
         }
 
@@ -53,19 +49,25 @@ authRouter.post("/register", validateRegister, async (req, res) => {
 
         const supabaseUserId = data.user.id;
 
-        // เพิ่มข้อมูลผู้ใช้ในฐานข้อมูล PostgreSQL
-        const query = `
-          INSERT INTO users (id, username, name, role)
-          VALUES ($1, $2, $3, $4)
-          RETURNING *;
-        `;
+        // เพิ่มข้อมูลผู้ใช้ในฐานข้อมูล Supabase
+        const { data: userData, error: insertError } = await supabase
+            .from('users')
+            .insert({
+                id: supabaseUserId,
+                username,
+                name,
+                role: "user"
+            })
+            .select()
+            .single();
 
-        const values = [supabaseUserId, username, name, "user"];
+        if (insertError) {
+            return res.status(500).json({ error: "Failed to create user profile" });
+        }
 
-        const { rows } = await connectionPool.query(query, values);
         res.status(201).json({
             message: "User created successfully",
-            user: rows[0],
+            user: userData,
         });
     } catch (error) {
         res.status(500).json({ error: "An error occurred during registration" });
@@ -84,8 +86,8 @@ authRouter.post("/login", validateLogin, async (req, res) => {
         if (error) {
             // ตรวจสอบว่า error เกิดจากข้อมูลเข้าสู่ระบบไม่ถูกต้องหรือไม่
             if (
-                error.code === "invalid_credentials" ||
-                error.message.includes("Invalid login credentials")
+                error.message.includes("Invalid login credentials") ||
+                error.message.includes("Invalid email or password")
             ) {
                 return res.status(400).json({
                     error: "Your password is incorrect or this email doesn't exist",
@@ -118,20 +120,25 @@ authRouter.get("/get-user", protectUser, async (req, res) => {
         }
 
         const supabaseUserId = data.user.id;
-        const query = `
-                      SELECT * FROM users 
-                      WHERE id = $1
-                    `;
-        const values = [supabaseUserId];
-        const { rows } = await connectionPool.query(query, values);
+        
+        // ดึงข้อมูลผู้ใช้จาก Supabase users table
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', supabaseUserId)
+            .single();
+
+        if (userError || !userData) {
+            return res.status(404).json({ error: "User profile not found" });
+        }
 
         res.status(200).json({
             id: data.user.id,
             email: data.user.email,
-            username: rows[0].username,
-            name: rows[0].name,
-            role: rows[0].role,
-            profilePic: rows[0].profile_pic,
+            username: userData.username,
+            name: userData.name,
+            role: userData.role,
+            profilePic: userData.profile_pic,
         });
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
