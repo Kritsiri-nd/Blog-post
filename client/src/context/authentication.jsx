@@ -1,146 +1,187 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-const AuthContext = React.createContext();
+const AuthContext = createContext();
 
-function AuthProvider(props) {
-  const [state, setState] = useState({
-    loading: null,
-    getUserLoading: null,
-    error: null,
-    user: null,
-  });
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const navigate = useNavigate();
+  // Check if user is logged in on app start
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
-  // ดึงข้อมูลผู้ใช้โดยใช้ Supabase API
-  const fetchUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setState((prevState) => ({
-        ...prevState,
-        user: null,
-        getUserLoading: false,
+      try {
+        const response = await axios.get('http://localhost:4001/auth/get-user', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        localStorage.removeItem('token');
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:4001/auth/login', {
+        email,
+        password
+      });
+
+      const token = response.data.access_token;
+      localStorage.setItem('token', token);
+
+      // Fetch user data
+      const userResponse = await axios.get('http://localhost:4001/auth/get-user', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setUser(userResponse.data);
+      return { success: true, user: userResponse.data };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error.response?.data?.error || 'Login failed' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:4001/auth/register', userData);
+      
+      setUser(null); // User needs to verify email
+      return { success: true, user: response.data.user };
+    } catch (error) {
+      console.error('Register error:', error);
+      return { success: false, error: error.response?.data?.error || 'Registration failed' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      localStorage.removeItem('token');
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:4001/auth/update-profile', profileData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      // Update local user state
+      setUser(prev => ({
+        ...prev,
+        ...response.data.user
       }));
+
+      return { success: true, user: response.data.user };
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return { success: false, error: error.response?.data?.error || 'Update failed' };
+    }
+  };
+
+  const resetPassword = async (oldPassword, newPassword) => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:4001/auth/reset-password', {
+        oldPassword,
+        newPassword
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return { success: false, error: error.response?.data?.error || 'Reset failed' };
+    }
+  };
+
+  const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
       return;
     }
 
     try {
-      setState((prevState) => ({ ...prevState, getUserLoading: true }));
-      const response = await axios.get(
-        "http://localhost:4001/auth/get-user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const response = await axios.get('http://localhost:4001/auth/get-user', {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
-      setState((prevState) => ({
-        ...prevState,
-        user: response.data,
-        getUserLoading: false,
-      }));
+      });
+      setUser(response.data);
     } catch (error) {
-      setState((prevState) => ({
-        ...prevState,
-        error: error.message,
-        user: null,
-        getUserLoading: false,
-      }));
+      console.error('Error fetching user:', error);
+      localStorage.removeItem('token');
+      setUser(null);
     }
   };
 
-  useEffect(() => {
-    fetchUser(); // โหลดข้อมูลผู้ใช้เมื่อแอปเริ่มต้น
-  }, []);
-
-  // ล็อกอินผู้ใช้
-  const login = async (data) => {
-    try {
-      setState((prevState) => ({ ...prevState, loading: true, error: null }));
-      const response = await axios.post(
-        "http://localhost:4001/auth/login",
-        data,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      const token = response.data.access_token;
-      localStorage.setItem("token", token);
-
-      // ดึงและตั้งค่าข้อมูลผู้ใช้
-      setState((prevState) => ({ ...prevState, loading: false, error: null }));
-      navigate("/");
-      await fetchUser();
-      return { success: true };
-    } catch (error) {
-      setState((prevState) => ({
-        ...prevState,
-        loading: false,
-        error: error.response?.data?.error || "Login failed",
-      }));
-      return { success: false, error: error.response?.data?.error || "Login failed" };
-    }
+  const value = {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    login,
+    logout,
+    register,
+    signup: register, // Alias for register
+    updateProfile,
+    resetPassword,
+    fetchUser
   };
-
-  // ลงทะเบียนผู้ใช้
-  const register = async (data) => {
-    try {
-      setState((prevState) => ({ ...prevState, loading: true, error: null }));
-      await axios.post(
-        "http://localhost:4001/auth/register",
-        data,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      setState((prevState) => ({ ...prevState, loading: false, error: null }));
-      navigate("/signup-success");
-      return { success: true };
-    } catch (error) {
-      setState((prevState) => ({
-        ...prevState,
-        loading: false,
-        error: error.response?.data?.error || "Registration failed",
-      }));
-      return { success: false, error: error.response?.data?.error || "Registration failed" };
-    }
-  };
-
-  // ล็อกเอาท์ผู้ใช้
-  const logout = () => {
-    localStorage.removeItem("token");
-    setState({ user: null, error: null, loading: null });
-    navigate("/");
-  };
-
-  const isAuthenticated = Boolean(state.user);
 
   return (
-    <AuthContext.Provider
-      value={{
-        state,
-        user: state.user, // เพิ่ม user property
-        login,
-        logout,
-        register,
-        signup: register, // เพิ่ม alias สำหรับ signup
-        isAuthenticated,
-        fetchUser,
-      }}
-    >
-      {props.children}
+    <AuthContext.Provider value={value}>
+      {children}
     </AuthContext.Provider>
   );
-}
+};
 
-// Hook สำหรับใช้งาน AuthContext
-const useAuth = () => React.useContext(AuthContext);
-
-export { AuthProvider, useAuth };
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 

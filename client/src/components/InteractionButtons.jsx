@@ -4,17 +4,18 @@ import FacebookIcon from "../assets/Facebook_ic.png";
 import LinkedInIcon from "../assets/LinkedIN_ic.png";
 import TwitterIcon from "../assets/Twitter_ic.png";
 import LoginModal from "./LoginModal";
+import { useAuth } from "../context/authentication.jsx";
 
 function InteractionButtons({ likes, postId }) {
   const [likeCount, setLikeCount] = React.useState(likes || 0);
   const [isLiked, setIsLiked] = React.useState(false);
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   
-  // Simulate user not logged in (as per requirement)
-  const isLoggedIn = false;
+  // Use real authentication context
+  const { isAuthenticated } = useAuth();
 
   const handleLike = () => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }

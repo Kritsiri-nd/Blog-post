@@ -30,7 +30,7 @@ import AdminLogin from "./pages/AdminLogin";
 
 // AppRoutes component ที่ใช้ useAuth hook
 function AppRoutes() {
-  const { isAuthenticated, state } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   return (
     <Routes>
@@ -54,7 +54,7 @@ function AppRoutes() {
       {/* เส้นทางที่เฉพาะผู้ที่ยังไม่ล็อกอินเข้าถึงได้ */}
       <Route path="/signup" element={
         <AuthenticationRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
         >
           <>
@@ -65,7 +65,7 @@ function AppRoutes() {
       } />
       <Route path="/signin" element={
         <AuthenticationRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
         >
           <>
@@ -76,7 +76,7 @@ function AppRoutes() {
       } />
       <Route path="/signup-success" element={
         <AuthenticationRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
         >
           <>
@@ -89,9 +89,9 @@ function AppRoutes() {
       {/* เส้นทางที่เฉพาะผู้ใช้ทั่วไปที่ล็อกอินแล้วเข้าถึงได้ */}
       <Route path="/profile" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="user"
         >
           <>
@@ -102,9 +102,9 @@ function AppRoutes() {
       } />
       <Route path="/reset-password" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="user"
         >
           <>
@@ -117,9 +117,9 @@ function AppRoutes() {
       {/* เส้นทางที่เฉพาะผู้ดูแลระบบ (admin) เข้าถึงได้ */}
       <Route path="/admin/articles" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -129,9 +129,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/articles/create" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -141,9 +141,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/categories" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -153,9 +153,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/categories/create" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -165,9 +165,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/categories/edit/:id" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -177,9 +177,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/profile" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -189,9 +189,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/notifications" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -201,9 +201,9 @@ function AppRoutes() {
       } />
       <Route path="/admin/reset-password" element={
         <ProtectedRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
-          userRole={state.user?.role}
+          userRole={user?.role}
           requiredRole="admin"
         >
           <AdminLayout>
@@ -215,7 +215,7 @@ function AppRoutes() {
       {/* Admin Login - เฉพาะผู้ที่ยังไม่ล็อกอิน */}
       <Route path="/admin/login" element={
         <AuthenticationRoute
-          isLoading={state.getUserLoading}
+          isLoading={isLoading}
           isAuthenticated={isAuthenticated}
         >
           <AdminLogin />
