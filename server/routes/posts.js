@@ -1,6 +1,8 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { validatePutPost, validatePostPost } from '../middleware/validation.js';
+import protectUser from '../middleware/protectUser.mjs';
+import protectAdmin from '../middleware/protectAdmin.mjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -12,8 +14,8 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// POST /posts - สร้างบทความใหม่
-router.post("/", validatePostPost, async (req, res) => {
+// POST /posts - สร้างบทความใหม่ (ต้องเป็น user)
+router.post("/", protectUser, validatePostPost, async (req, res) => {
     try {
         const { title, image, category_id, description, content, status_id } = req.body;
 
@@ -145,8 +147,8 @@ router.get("/:postId", async (req, res) => {
     }
 });
 
-// PUT /posts/:postId - แก้ไขบทความที่มีอยู่
-router.put("/:postId", validatePutPost, async (req, res) => {
+// PUT /posts/:postId - แก้ไขบทความที่มีอยู่ (ต้องเป็น user)
+router.put("/:postId", protectUser, validatePutPost, async (req, res) => {
     try {
         const { postId } = req.params;
         
@@ -198,8 +200,8 @@ router.put("/:postId", validatePutPost, async (req, res) => {
     }
 });
 
-// DELETE /posts/:postId - ลบบทความ
-router.delete("/:postId", async (req, res) => {
+// DELETE /posts/:postId - ลบบทความ (ต้องเป็น admin)
+router.delete("/:postId", protectAdmin, async (req, res) => {
     try {
         const { postId } = req.params;
 

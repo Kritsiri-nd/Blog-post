@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
 import postsRouter from './routes/posts.js';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -25,8 +26,9 @@ app.get("/profile", (req, res) => {
     });
 });
 
-// Use posts router
+// Use routers
 app.use("/posts", postsRouter);
+app.use("/auth", authRouter);
 
 app.listen(port, () => {
     console.log(`Server is running at ${port}`);
