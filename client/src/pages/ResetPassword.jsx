@@ -126,21 +126,7 @@ const ResetPassword = () => {
       {/* Mobile Layout */}
       <div className="lg:hidden">
         {/* Top Navigation Tabs */}
-        <div className="flex items-center justify-center gap-8 py-4 px-4 border-b border-gray-200">
-          <button
-            onClick={handleBackToProfile}
-            className="flex items-center gap-2 text-sm font-medium text-gray-500"
-          >
-            <User className="w-4 h-4" />
-            Profile
-          </button>
-          <button
-            className="flex items-center gap-2 text-sm font-bold text-gray-900"
-          >
-            <Lock className="w-4 h-4" />
-            Reset password
-          </button>
-        </div>
+       
 
         {/* User Info Header */}
         <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
