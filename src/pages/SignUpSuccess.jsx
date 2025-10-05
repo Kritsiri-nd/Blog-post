@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import SuccessModal from './SuccessModal';
+import SuccessModal from '../components/SuccessModal';
 
 const SignUpSuccess = () => {
   const navigate = useNavigate();

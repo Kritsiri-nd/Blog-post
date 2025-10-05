@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import SuccessNotification from './SuccessNotification';
+import SuccessNotification from '../components/SuccessNotification';
 
 const CreateCategory = () => {
   const navigate = useNavigate();

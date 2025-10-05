@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { validateSignInForm } from '../utils/validation';
 import { useAuth } from '../context/AuthContext';
-import ErrorModal from './ErrorModal';
+import ErrorModal from '../components/ErrorModal';
 
 const SignIn = () => {
   const navigate = useNavigate();
