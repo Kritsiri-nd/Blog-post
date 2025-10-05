@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./context/authentication.jsx/index.js";
+import { AuthProvider } from "./context/authentication.jsx";
 import jwtInterceptor from "./utils/jwtInterceptor.js";
 
 // เรียกใช้ jwtInterceptor ก่อนที่แอปจะเริ่มทำงาน

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { validateSignInForm } from '../utils/validation';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authentication.jsx';
 import ErrorModal from '../components/ErrorModal';
 
 const SignIn = () => {

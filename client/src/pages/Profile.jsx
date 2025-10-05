@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authentication.jsx';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock } from 'lucide-react';
 import { toast } from 'sonner';

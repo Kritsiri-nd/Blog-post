@@ -1,12 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import connectionPool from "../utils/db.mjs";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// Middleware ตรวจสอบ JWT token และสิทธิ์ Admin
+/// Middleware ตรวจสอบ JWT token และสิทธิ์ Admin
 const protectAdmin = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1]; // ดึง token จาก Authorization header
 
@@ -22,23 +21,19 @@ const protectAdmin = async (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
 
-    // ดึง user ID จากข้อมูลผู้ใช้ Supabase
-    const supabaseUserId = data.user.id;
+    // ดึงข้อมูล role ของผู้ใช้จาก Supabase users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
 
-    // ดึงข้อมูล role ของผู้ใช้จากฐานข้อมูล PostgreSQL
-    const query = `
-                    SELECT role FROM users 
-                    WHERE id = $1
-                  `;
-    const values = [supabaseUserId];
-    const { rows, error: dbError } = await connectionPool.query(query, values);
-
-    if (dbError || !rows.length) {
+    if (userError || !userData) {
       return res.status(404).json({ error: "User role not found" });
     }
 
     // แนบข้อมูลผู้ใช้พร้อม role เข้ากับ request object
-    req.user = { ...data.user, role: rows[0].role };
+    req.user = { ...data.user, role: userData.role };
 
     // ตรวจสอบว่าผู้ใช้เป็น admin หรือไม่
     if (req.user.role !== "admin") {
