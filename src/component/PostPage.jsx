@@ -132,7 +132,7 @@ function PostPage() {
             </div>
 
             {/* Title */}
-            <h1 className="h2 mb-6 text-brown-600">{post.title}</h1>
+            <h1 className="sm:h2 h3 mb-6 text-brown-600">{post.title}</h1>
 
             {/* Description */}
             <p className="b1 mb-8 leading-relaxed text-brown-500">
