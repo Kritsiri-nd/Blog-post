@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
-import { AuthProvider, useAuth } from "./context/authentication";
+import { AuthProvider, useAuth } from "./context/authentication.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AuthenticationRoute from "./components/auth/AuthenticationRoute";
 // Components
@@ -237,10 +237,8 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppRoutes />
-        <Toaster position="bottom-right" />
-      </Router>
+      <AppRoutes />
+      <Toaster position="bottom-right" />
     </AuthProvider>
   );
 }

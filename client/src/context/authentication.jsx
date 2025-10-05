@@ -61,7 +61,12 @@ function AuthProvider(props) {
       setState((prevState) => ({ ...prevState, loading: true, error: null }));
       const response = await axios.post(
         "http://localhost:4001/auth/login",
-        data
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
       const token = response.data.access_token;
       localStorage.setItem("token", token);
@@ -70,13 +75,14 @@ function AuthProvider(props) {
       setState((prevState) => ({ ...prevState, loading: false, error: null }));
       navigate("/");
       await fetchUser();
+      return { success: true };
     } catch (error) {
       setState((prevState) => ({
         ...prevState,
         loading: false,
         error: error.response?.data?.error || "Login failed",
       }));
-      return { error: error.response?.data?.error || "Login failed" };
+      return { success: false, error: error.response?.data?.error || "Login failed" };
     }
   };
 
@@ -86,17 +92,23 @@ function AuthProvider(props) {
       setState((prevState) => ({ ...prevState, loading: true, error: null }));
       await axios.post(
         "http://localhost:4001/auth/register",
-        data
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
       setState((prevState) => ({ ...prevState, loading: false, error: null }));
-      navigate("/sign-up/success");
+      navigate("/signup-success");
+      return { success: true };
     } catch (error) {
       setState((prevState) => ({
         ...prevState,
         loading: false,
         error: error.response?.data?.error || "Registration failed",
       }));
-      return { error: state.error };
+      return { success: false, error: error.response?.data?.error || "Registration failed" };
     }
   };
 
@@ -116,6 +128,7 @@ function AuthProvider(props) {
         login,
         logout,
         register,
+        signup: register, // เพิ่ม alias สำหรับ signup
         isAuthenticated,
         fetchUser,
       }}

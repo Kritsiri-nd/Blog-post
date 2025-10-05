@@ -4,6 +4,12 @@
 function validateRegisterData(data) {
     const errors = [];
 
+    // ตรวจสอบว่า data มีค่าหรือไม่
+    if (!data || typeof data !== 'object') {
+        errors.push("Request body is required");
+        return errors;
+    }
+
     // ตรวจสอบ email
     if (!data.email) {
         errors.push("Email is required");
@@ -47,6 +53,12 @@ function validateRegisterData(data) {
 function validateLoginData(data) {
     const errors = [];
 
+    // ตรวจสอบว่า data มีค่าหรือไม่
+    if (!data || typeof data !== 'object') {
+        errors.push("Request body is required");
+        return errors;
+    }
+
     // ตรวจสอบ email
     if (!data.email) {
         errors.push("Email is required");
@@ -69,6 +81,12 @@ function validateLoginData(data) {
 // Validation function สำหรับ reset password
 function validateResetPasswordData(data) {
     const errors = [];
+
+    // ตรวจสอบว่า data มีค่าหรือไม่
+    if (!data || typeof data !== 'object') {
+        errors.push("Request body is required");
+        return errors;
+    }
 
     // ตรวจสอบ oldPassword
     if (!data.oldPassword) {

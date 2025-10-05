@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { validateSignInForm } from '../utils/validation';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authentication.jsx';
 import ErrorModal from '../components/ErrorModal';
 
 const SignIn = () => {
@@ -45,7 +45,7 @@ const SignIn = () => {
     setIsLoading(true);
     
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData);
       
       if (result.success) {
         navigate('/');
