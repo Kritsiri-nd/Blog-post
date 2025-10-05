@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/authentication";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AuthenticationRoute from "./components/auth/AuthenticationRoute";
 // Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -26,105 +28,217 @@ import AdminNotification from "./pages/AdminNotification";
 import AdminResetPassword from "./pages/AdminResetPassword";
 import AdminLogin from "./pages/AdminLogin";
 
-function App() {
+// AppRoutes component ที่ใช้ useAuth hook
+function AppRoutes() {
+  const { isAuthenticated, state } = useAuth();
+
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-        <Route path="/" element={
-          <>
-            <Navbar />
-            <HeroSection />
-            <ArticleSection />
-            <Footer />
-          </>
-        } />
-        <Route path="/post/:postId" element={
-          <>
-            <Navbar />
-            <PostPage />
-            <Footer />
-          </>
-        } />
-        <Route path="/signup" element={
+    <Routes>
+      {/* เส้นทางสาธารณะที่ทุกคนเข้าถึงได้ */}
+      <Route path="/" element={
+        <>
+          <Navbar />
+          <HeroSection />
+          <ArticleSection />
+          <Footer />
+        </>
+      } />
+      <Route path="/post/:postId" element={
+        <>
+          <Navbar />
+          <PostPage />
+          <Footer />
+        </>
+      } />
+
+      {/* เส้นทางที่เฉพาะผู้ที่ยังไม่ล็อกอินเข้าถึงได้ */}
+      <Route path="/signup" element={
+        <AuthenticationRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+        >
           <>
             <Navbar />
             <SignUp />
           </>
-        } />
-        <Route path="/signin" element={
+        </AuthenticationRoute>
+      } />
+      <Route path="/signin" element={
+        <AuthenticationRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+        >
           <>
             <Navbar />
             <SignIn />
           </>
-        } />
-        <Route path="/signup-success" element={
+        </AuthenticationRoute>
+      } />
+      <Route path="/signup-success" element={
+        <AuthenticationRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+        >
           <>
             <Navbar />
             <SignUpSuccess />
           </>
-        } />
-        <Route path="/profile" element={
+        </AuthenticationRoute>
+      } />
+
+      {/* เส้นทางที่เฉพาะผู้ใช้ทั่วไปที่ล็อกอินแล้วเข้าถึงได้ */}
+      <Route path="/profile" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="user"
+        >
           <>
             <Navbar />
             <Profile />
           </>
-        } />
-        <Route path="/reset-password" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/reset-password" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="user"
+        >
           <>
             <Navbar />
             <ResetPassword />
           </>
-        } />
-        <Route path="/admin/articles" element={
+        </ProtectedRoute>
+      } />
+
+      {/* เส้นทางที่เฉพาะผู้ดูแลระบบ (admin) เข้าถึงได้ */}
+      <Route path="/admin/articles" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <ArticleManagement />
           </AdminLayout>
-        } />
-        <Route path="/admin/articles/create" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/articles/create" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <CreateArticle />
           </AdminLayout>
-        } />
-        <Route path="/admin/categories" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/categories" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <CategoryManagement />
           </AdminLayout>
-        } />
-        <Route path="/admin/categories/create" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/categories/create" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <CreateCategory />
           </AdminLayout>
-        } />
-        <Route path="/admin/categories/edit/:id" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/categories/edit/:id" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <EditCategory />
           </AdminLayout>
-        } />
-        <Route path="/admin/profile" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/profile" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <AdminProfile />
           </AdminLayout>
-        } />
-        <Route path="/admin/notifications" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/notifications" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <AdminNotification />
           </AdminLayout>
-        } />
-        <Route path="/admin/reset-password" element={
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/reset-password" element={
+        <ProtectedRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={state.user?.role}
+          requiredRole="admin"
+        >
           <AdminLayout>
             <AdminResetPassword />
           </AdminLayout>
-        } />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="*" element={
-          <>
-            <Navbar />
-            <NotFoundPage />
-            <Footer />
-          </>
-        } />
-        </Routes>
+        </ProtectedRoute>
+      } />
+
+      {/* Admin Login - เฉพาะผู้ที่ยังไม่ล็อกอิน */}
+      <Route path="/admin/login" element={
+        <AuthenticationRoute
+          isLoading={state.getUserLoading}
+          isAuthenticated={isAuthenticated}
+        >
+          <AdminLogin />
+        </AuthenticationRoute>
+      } />
+
+      {/* 404 Page */}
+      <Route path="*" element={
+        <>
+          <Navbar />
+          <NotFoundPage />
+          <Footer />
+        </>
+      } />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppRoutes />
         <Toaster position="bottom-right" />
       </Router>
     </AuthProvider>
