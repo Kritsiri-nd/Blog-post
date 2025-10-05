@@ -7,7 +7,7 @@ function jwtInterceptor() {
     if (hasToken) {
       req.headers = {
         ...req.headers,
-        Authorization: <Code>Bearer ${window.localStorage.getItem("token")}</Code>,
+        Authorization: `Bearer ${window.localStorage.getItem("token")}`,
       };
     }
 
