@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "./Button"
-import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut } from "lucide-react";
+import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authentication.jsx";
 import {
@@ -79,6 +79,14 @@ function Navbar() {
                     Reset Password
                   </Link>
                 </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      Admin panel
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 ">
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -148,6 +156,17 @@ function Navbar() {
                     <RotateCcw className="w-5 h-5" />
                     <span className="font-medium">Reset password</span>
                   </Link>
+                  {/* Admin Panel Link - Only for admin users */}
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span className="font-medium">Admin panel</span>
+                    </Link>
+                  )}
                 </div>
 
                 {/* Separator */}
