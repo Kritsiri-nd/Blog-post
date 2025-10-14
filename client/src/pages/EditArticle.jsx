@@ -22,6 +22,7 @@ const EditArticle = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Fetch article data
   useEffect(() => {
@@ -66,6 +67,14 @@ const EditArticle = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -75,6 +84,14 @@ const EditArticle = () => {
         ...prev,
         thumbnail: file
       }));
+      
+      // Clear error when user selects file
+      if (errors.thumbnail) {
+        setErrors(prev => ({
+          ...prev,
+          thumbnail: ''
+        }));
+      }
     }
   };
 
@@ -101,10 +118,45 @@ const EditArticle = () => {
     }
   };
 
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.thumbnail && !formData.existingImage) {
+      newErrors.thumbnail = 'กรุณาอัปโหลดรูปภาพ';
+    }
+    
+    if (!formData.category_id) {
+      newErrors.category_id = 'กรุณาเลือกหมวดหมู่';
+    }
+    
+    if (!formData.title.trim()) {
+      newErrors.title = 'กรุณากรอกหัวข้อ';
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = 'กรุณากรอกคำอธิบาย';
+    }
+    
+    if (!formData.content.trim()) {
+      newErrors.content = 'กรุณากรอกเนื้อหา';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleUpdate = async (status_id) => {
     setIsSaving(true);
     try {
       const token = localStorage.getItem('token');
+      
+      // Validate form
+      if (!validateForm()) {
+        setIsSaving(false);
+        return;
+      }
+      
       let imageUrl = formData.existingImage;
 
       // Upload new image if selected
@@ -186,7 +238,11 @@ const EditArticle = () => {
             Thumbnail image
           </label>
           <div className='flex flex-row gap-4 items-end'>
-            <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center w-140 h-80 relative overflow-hidden">
+            <div className={`border-2 border-dashed rounded-lg p-4 text-center w-140 h-80 relative overflow-hidden ${
+              errors.thumbnail 
+                ? 'border-red-500' 
+                : 'border-blue-300'
+            }`}>
               {formData.thumbnail ? (
                 <img
                   src={URL.createObjectURL(formData.thumbnail)}
@@ -222,6 +278,9 @@ const EditArticle = () => {
               </button>
             </div>
           </div>
+          {errors.thumbnail && (
+            <p className="mt-1 text-sm text-red-600">{errors.thumbnail}</p>
+          )}
 
           {/* Category */}
           <div>
@@ -231,7 +290,11 @@ const EditArticle = () => {
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleInputChange}
-                className="w-full appearance-none border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+                className={`w-full appearance-none border rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green ${
+                  errors.category_id 
+                    ? 'border-red-500' 
+                    : 'border-gray-300'
+                }`}
               >
                 <option value="">Select category</option>
                 {categories.map(category => (
@@ -240,6 +303,9 @@ const EditArticle = () => {
               </select>
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brown-400 pointer-events-none" />
             </div>
+            {errors.category_id && (
+              <p className="mt-1 text-sm text-red-600">{errors.category_id}</p>
+            )}
           </div>
 
           {/* Title */}
@@ -251,8 +317,15 @@ const EditArticle = () => {
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Article title"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                errors.title 
+                  ? 'border-red-500' 
+                  : 'border-gray-300'
+              }`}
             />
+            {errors.title && (
+              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+            )}
           </div>
 
           {/* Description */}
@@ -267,11 +340,18 @@ const EditArticle = () => {
               placeholder="Description"
               rows={4}
               maxLength={120}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green resize-none"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green resize-none ${
+                errors.description 
+                  ? 'border-red-500' 
+                  : 'border-gray-300'
+              }`}
             />
             <div className="text-right text-sm text-gray-500 mt-1">
               {formData.description.length}/120
             </div>
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+            )}
           </div>
 
           {/* Content */}
@@ -283,8 +363,15 @@ const EditArticle = () => {
               onChange={handleInputChange}
               placeholder="Content"
               rows={12}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green resize-none"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green resize-none ${
+                errors.content 
+                  ? 'border-red-500' 
+                  : 'border-gray-300'
+              }`}
             />
+            {errors.content && (
+              <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+            )}
           </div>
         </div>
       </div>
