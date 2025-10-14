@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/authentication.jsx';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
+import SuccessNotification from '../components/SuccessNotification';
 
 const ResetPassword = () => {
-  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -14,6 +13,7 @@ const ResetPassword = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,6 +21,7 @@ const ResetPassword = () => {
       ...prev,
       [name]: value
     }));
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -30,29 +31,26 @@ const ResetPassword = () => {
     }
   };
 
+  // Validation function
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.currentPassword) {
-      newErrors.currentPassword = 'Current password is required';
+    
+    if (!formData.currentPassword.trim()) {
+      newErrors.currentPassword = 'กรุณากรอกรหัสผ่านปัจจุบัน';
     }
-
-    if (!formData.newPassword) {
-      newErrors.newPassword = 'New password is required';
+    
+    if (!formData.newPassword.trim()) {
+      newErrors.newPassword = 'กรุณากรอกรหัสผ่านใหม่';
     } else if (formData.newPassword.length < 6) {
-      newErrors.newPassword = 'Password must be at least 6 characters long';
+      newErrors.newPassword = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
     }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your new password';
+    
+    if (!formData.confirmPassword.trim()) {
+      newErrors.confirmPassword = 'กรุณายืนยันรหัสผ่านใหม่';
     } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'รหัสผ่านใหม่ไม่ตรงกัน';
     }
-
-    if (formData.currentPassword === formData.newPassword) {
-      newErrors.newPassword = 'New password must be different from current password';
-    }
-
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -60,106 +58,89 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate form
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-
     try {
-      // Call real API to reset password
-      const response = await fetch('http://localhost:4001/auth/reset-password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          oldPassword: formData.currentPassword,
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/signin');
+        return;
+      }
+
+      await axios.post(
+        'http://localhost:4001/auth/reset-password',
+        {
+          currentPassword: formData.currentPassword,
           newPassword: formData.newPassword
-        })
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      // Show success notification
+      setSuccessMessage('Password changed successfully');
+      setShowSuccess(true);
+      
+      // Clear form
+      setFormData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
       });
 
-      if (response.ok) {
-        setShowSuccess(true);
-        
-        // Reset form
-        setFormData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-        
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 3000);
-      } else {
-        const errorData = await response.json();
-        setErrors({ general: errorData.error || 'Failed to reset password' });
-      }
+      // Navigate back to profile after 2 seconds
+      setTimeout(() => {
+        navigate('/profile');
+      }, 2000);
     } catch (error) {
-      console.error('Reset password error:', error);
-      setErrors({ general: 'An error occurred. Please try again.' });
+      console.error('Error resetting password:', error);
+      
+      if (error.response?.status === 401) {
+        setErrors({ currentPassword: 'รหัสผ่านปัจจุบันไม่ถูกต้อง' });
+      } else if (error.response?.status === 400) {
+        setErrors({ currentPassword: error.response.data.message || 'รหัสผ่านปัจจุบันไม่ถูกต้อง' });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleBackToProfile = () => {
-    navigate('/profile');
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to reset your password</h2>
-          <p className="text-gray-600">You need to be logged in to access this page.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Mobile Layout */}
       <div className="lg:hidden">
-        {/* Top Navigation Tabs */}
-       
-
         {/* User Info Header */}
         <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
-          <img
-            src={user?.avatar}
-            alt={user?.name}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-          <span className="text-gray-600">{user?.name || "Moodeng ja"}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-sm font-bold text-gray-900">Reset password</span>
+          <span className="text-sm font-bold text-gray-900">Reset Password</span>
         </div>
 
         {/* Main Content */}
         <div className="px-4 py-8">
-          <div className="max-w-md mx-auto">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Change your password</h2>
-            
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Current Password */}
               <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Current password
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password
                 </label>
                 <input
-                  id="currentPassword"
-                  name="currentPassword"
                   type="password"
-                  placeholder="Current password"
+                  name="currentPassword"
                   value={formData.currentPassword}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                    errors.currentPassword ? 'border-red-500' : 'border-gray-300'
+                  placeholder="Current password"
+                  className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                    errors.currentPassword 
+                      ? 'border-red-500' 
+                      : 'border-gray-300'
                   }`}
                 />
                 {errors.currentPassword && (
@@ -169,18 +150,19 @@ const ResetPassword = () => {
 
               {/* New Password */}
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  New password
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Password
                 </label>
                 <input
-                  id="newPassword"
-                  name="newPassword"
                   type="password"
-                  placeholder="New password"
+                  name="newPassword"
                   value={formData.newPassword}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                    errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                  placeholder="New password"
+                  className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                    errors.newPassword 
+                      ? 'border-red-500' 
+                      : 'border-gray-300'
                   }`}
                 />
                 {errors.newPassword && (
@@ -188,20 +170,21 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {/* Confirm Password */}
+              {/* Confirm New Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm new password
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm New Password
                 </label>
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                  placeholder="Confirm new password"
+                  className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                    errors.confirmPassword 
+                      ? 'border-red-500' 
+                      : 'border-gray-300'
                   }`}
                 />
                 {errors.confirmPassword && (
@@ -209,21 +192,21 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {/* Submit Error */}
-              {errors.submit && (
-                <div className="text-red-600 text-sm">
-                  {errors.submit}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <div className="pt-4">
+              {/* Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => navigate('/profile')}
+                  className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? 'Resetting...' : 'Reset password'}
+                  {isLoading ? 'Changing...' : 'Reset Password'}
                 </button>
               </div>
             </form>
@@ -236,128 +219,118 @@ const ResetPassword = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8 px-5">
-            <img
-              src={user?.avatar}
-              alt={user?.name}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <span className="text-gray-600 text-xl">|</span>
-            <h1 className="text-2xl font-bold text-gray-900">Reset password</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
           </div>
           
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Navigation */}
             <div className="lg:w-64 flex-shrink-0">
               <div className="bg-white rounded-lg shadow-sm p-6">
-                {/* Navigation */}
                 <nav className="space-y-2">
                   <button
-                    onClick={handleBackToProfile}
+                    onClick={() => navigate('/profile')}
                     className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
                   >
-                    <User className="w-4 h-4" />
                     Profile
                   </button>
-                  <a
-                    href="#"
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg"
+                  <button
+                    onClick={() => navigate('/reset-password')}
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
                   >
-                    <Lock className="w-4 h-4" />
                     Reset password
-                  </a>
+                  </button>
                 </nav>
               </div>
             </div>
 
             {/* Main Content */}
             <div className="flex-1">
-              <div className="bg-brown-200 rounded-lg shadow-sm p-8">
-                <div className="max-w-md">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Change your password</h2>
-                  
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Current Password */}
-                    <div>
-                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Current password
-                      </label>
-                      <input
-                        id="currentPassword"
-                        name="currentPassword"
-                        type="password"
-                        placeholder="Current password"
-                        value={formData.currentPassword}
-                        onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                          errors.currentPassword ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors.currentPassword && (
-                        <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
-                      )}
-                    </div>
-
-                    {/* New Password */}
-                    <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        New password
-                      </label>
-                      <input
-                        id="newPassword"
-                        name="newPassword"
-                        type="password"
-                        placeholder="New password"
-                        value={formData.newPassword}
-                        onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                          errors.newPassword ? 'border-red-500' : 'border-gray-300'
-                        }`} 
-                      />
-                      {errors.newPassword && (
-                        <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
-                      )}
-                    </div>
-
-                    {/* Confirm Password */}
-                    <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Confirm new password
-                      </label>
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        placeholder="Confirm new password"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
-                          errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors.confirmPassword && (
-                        <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-                      )}
-                    </div>
-
-                    {/* Submit Error */}
-                    {errors.submit && (
-                      <div className="text-red-600 text-sm">
-                        {errors.submit}
-                      </div>
+              <div className="bg-white rounded-lg shadow-sm p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Current Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={handleInputChange}
+                      placeholder="Current password"
+                      className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                        errors.currentPassword 
+                          ? 'border-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                    />
+                    {errors.currentPassword && (
+                      <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
                     )}
+                  </div>
 
-                    {/* Submit Button */}
-                    <div className="pt-4">
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isLoading ? 'Resetting...' : 'Reset password'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                  {/* New Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      placeholder="New password"
+                      className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                        errors.newPassword 
+                          ? 'border-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                    />
+                    {errors.newPassword && (
+                      <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
+                    )}
+                  </div>
+
+                  {/* Confirm New Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="Confirm new password"
+                      className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green ${
+                        errors.confirmPassword 
+                          ? 'border-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/profile')}
+                      className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      {isLoading ? 'Changing...' : 'Reset Password'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -365,24 +338,12 @@ const ResetPassword = () => {
       </div>
 
       {/* Success Notification */}
-      {showSuccess && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-sm z-50">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="font-medium text-sm">Password updated</p>
-              <p className="text-xs mt-1 opacity-90">Your password has been successfully changed</p>
-            </div>
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="ml-3 text-white hover:text-gray-200 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+      <SuccessNotification
+        isVisible={showSuccess}
+        title="Success"
+        message={successMessage}
+        onClose={() => setShowSuccess(false)}
+      />
     </div>
   );
 };

@@ -145,9 +145,9 @@ authRouter.get("/get-user", protectUser, async (req, res) => {
     }
 });
 
-authRouter.put("/reset-password", protectUser, validateResetPassword, async (req, res) => {
+authRouter.post("/reset-password", protectUser, validateResetPassword, async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1]; // ดึง token จาก Authorization header
-    const { oldPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
   
     if (!token) {
       return res.status(401).json({ error: "Unauthorized: Token missing" });
@@ -171,11 +171,11 @@ authRouter.put("/reset-password", protectUser, validateResetPassword, async (req
       const { data: loginData, error: loginError } =
         await supabase.auth.signInWithPassword({
           email: userData.user.email,
-          password: oldPassword,
+          password: currentPassword,
         });
 
       if (loginError) {
-        return res.status(400).json({ error: "Invalid old password" });
+        return res.status(400).json({ error: "รหัสผ่านปัจจุบันไม่ถูกต้อง" });
       }
 
       // อัปเดตรหัสผ่านของผู้ใช้ด้วย session ที่ถูกต้อง

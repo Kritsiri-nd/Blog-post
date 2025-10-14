@@ -88,11 +88,11 @@ function validateResetPasswordData(data) {
         return errors;
     }
 
-    // ตรวจสอบ oldPassword
-    if (!data.oldPassword) {
-        errors.push("Old password is required");
-    } else if (typeof data.oldPassword !== 'string') {
-        errors.push("Old password must be a string");
+    // ตรวจสอบ currentPassword
+    if (!data.currentPassword) {
+        errors.push("Current password is required");
+    } else if (typeof data.currentPassword !== 'string') {
+        errors.push("Current password must be a string");
     }
 
     // ตรวจสอบ newPassword
