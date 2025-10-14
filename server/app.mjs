@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from 'dotenv';
 import postsRouter from './routes/posts.js';
 import authRouter from './routes/auth.js';
+import categoriesRouter from './routes/categories.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/profile", (req, res) => {
 // Use routers
 app.use("/posts", postsRouter);
 app.use("/auth", authRouter);
+app.use("/categories", categoriesRouter);
 
 app.listen(port, () => {
     console.log(`Server is running at ${port}`);
