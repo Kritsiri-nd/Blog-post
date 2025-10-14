@@ -1,26 +1,52 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { supabase } from '../lib/supabase.js';
 import SuccessNotification from '../components/SuccessNotification';
 
 const CreateCategory = () => {
   const navigate = useNavigate();
-  const [categoryName, setCategoryName] = useState('');
+  const [formData, setFormData] = useState({
+    name: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      return false;
+    } else if (formData.name.trim().length < 2) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSave = async () => {
-    if (!categoryName.trim()) {
-      alert('Please enter a category name');
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([
+          {
+            name: formData.name.trim()
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
       // Show success notification
       setShowSuccess(true);
       
@@ -35,21 +61,11 @@ const CreateCategory = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate('/admin/categories');
-  };
-
   return (
     <div className="flex-1 p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleBack}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
           <h1 className="h3 text-brown-600">Create category</h1>
         </div>
         <button
@@ -67,16 +83,18 @@ const CreateCategory = () => {
           {/* Category Name */}
           <div>
             <label className="block b1 text-brown-400 mb-2">
-              Category name
+              Category name *
             </label>
             <input
               type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Category name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter category name"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
             />
           </div>
+
         </div>
       </div>
 

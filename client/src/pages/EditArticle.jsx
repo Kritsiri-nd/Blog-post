@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, ChevronDown } from 'lucide-react';
 import axios from 'axios';
-import { toast } from 'sonner';
+import SuccessNotification from '../components/SuccessNotification';
 import { supabase } from '../lib/supabase.js';
 
 const EditArticle = () => {
@@ -19,6 +19,8 @@ const EditArticle = () => {
   });
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch article data
@@ -40,7 +42,6 @@ const EditArticle = () => {
         });
       } catch (error) {
         console.error('Error fetching article:', error);
-        toast.error('Failed to load article');
       } finally {
         setIsLoading(false);
       }
@@ -126,11 +127,16 @@ const EditArticle = () => {
         }
       });
 
-      toast.success(status_id === 1 ? 'Article published successfully' : 'Article saved as draft');
-      navigate('/admin/articles');
+      // Show success notification
+      setSuccessMessage(status_id === 1 ? 'Article published successfully' : 'Article saved as draft');
+      setShowSuccess(true);
+      
+      // Navigate back after 2 seconds
+      setTimeout(() => {
+        navigate('/admin/articles');
+      }, 2000);
     } catch (error) {
       console.error('Error updating article:', error);
-      toast.error('Failed to update article');
     } finally {
       setIsSaving(false);
     }
@@ -282,6 +288,14 @@ const EditArticle = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Notification */}
+      <SuccessNotification
+        isVisible={showSuccess}
+        title="Article updated"
+        message={successMessage}
+        onClose={() => setShowSuccess(false)}
+      />
     </div>
   );
 };

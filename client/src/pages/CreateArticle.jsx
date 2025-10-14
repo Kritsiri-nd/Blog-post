@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, ChevronDown } from 'lucide-react';
 import axios from 'axios';
-import { toast } from 'sonner';
+import SuccessNotification from '../components/SuccessNotification';
 import { supabaseAdmin } from '../lib/supabase.js';
 
 const CreateArticle = () => {
@@ -16,6 +16,8 @@ const CreateArticle = () => {
   });
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Fetch categories
   useEffect(() => {
@@ -25,7 +27,6 @@ const CreateArticle = () => {
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
-        toast.error('Failed to load categories');
       }
     };
     fetchCategories();
@@ -86,13 +87,11 @@ const CreateArticle = () => {
       
       // Validate required fields
       if (!formData.title || !formData.category_id || !formData.description || !formData.content) {
-        toast.error('Please fill in all required fields');
         return;
       }
 
       // Check authentication
       if (!token) {
-        toast.error('Please login to create articles');
         navigate('/admin/login');
         return;
       }
@@ -102,10 +101,8 @@ const CreateArticle = () => {
       if (formData.thumbnail) {
         try {
           imageUrl = await uploadImage(formData.thumbnail);
-          toast.success('Image uploaded successfully');
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError);
-          toast.error('Failed to upload image. Please try again.');
           return;
         }
       }
@@ -125,15 +122,18 @@ const CreateArticle = () => {
         }
       });
 
-      toast.success(status_id === 1 ? 'Article published successfully' : 'Article saved as draft');
-      navigate('/admin/articles');
+      // Show success notification
+      setSuccessMessage(status_id === 1 ? 'Article published successfully' : 'Article saved as draft');
+      setShowSuccess(true);
+      
+      // Navigate back after 2 seconds
+      setTimeout(() => {
+        navigate('/admin/articles');
+      }, 2000);
     } catch (error) {
       console.error('Error saving article:', error);
       if (error.response?.status === 401) {
-        toast.error('Session expired. Please login again.');
         navigate('/admin/login');
-      } else {
-        toast.error('Failed to save article');
       }
     } finally {
       setIsLoading(false);
@@ -274,6 +274,14 @@ const CreateArticle = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Notification */}
+      <SuccessNotification
+        isVisible={showSuccess}
+        title="Article saved"
+        message={successMessage}
+        onClose={() => setShowSuccess(false)}
+      />
     </div>
   );
 };

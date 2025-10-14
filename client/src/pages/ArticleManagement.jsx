@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
-import { toast } from 'sonner';
+import SuccessNotification from '../components/SuccessNotification';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ const ArticleManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, articleId: null, articleTitle: '' });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Fetch all articles from local server
   const fetchArticles = async () => {
@@ -43,7 +45,6 @@ const ArticleManagement = () => {
       setArticles(formattedArticles);
     } catch (error) {
       console.error('Error fetching articles:', error);
-      toast.error('Failed to fetch articles');
     } finally {
       setIsLoading(false);
     }
@@ -119,13 +120,17 @@ const ArticleManagement = () => {
       
       // Remove from local state
       setArticles(articles.filter(article => article.id !== deleteModal.articleId));
-      toast.success('Article deleted successfully');
+      // Show success notification
+      setSuccessMessage('Article deleted successfully');
+      setShowSuccess(true);
       
       // Close modal
       setDeleteModal({ isOpen: false, articleId: null, articleTitle: '' });
+      
+      // Hide success notification after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error deleting article:', error);
-      toast.error('Failed to delete article');
     }
   };
 
@@ -286,6 +291,14 @@ const ArticleManagement = () => {
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         articleTitle={deleteModal.articleTitle}
+      />
+
+      {/* Success Notification */}
+      <SuccessNotification
+        isVisible={showSuccess}
+        title="Delete article"
+        message={successMessage}
+        onClose={() => setShowSuccess(false)}
       />
     </div>
   );
