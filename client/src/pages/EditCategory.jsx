@@ -1,32 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { supabase } from '../lib/supabase.js';
 import SuccessNotification from '../components/SuccessNotification';
 
 const EditCategory = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [categoryName, setCategoryName] = useState('');
+  const [formData, setFormData] = useState({
+    name: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    // Load category data from Supabase
-    // TODO: Implement Supabase integration
+    if (id) {
+      fetchCategory();
+    }
   }, [id]);
 
+  const fetchCategory = async () => {
+    try {
+      setIsLoadingData(true);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      setFormData({
+        name: data.name || ''
+      });
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      navigate('/admin/categories');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      return false;
+    } else if (formData.name.trim().length < 2) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSave = async () => {
-    if (!categoryName.trim()) {
-      alert('Please enter a category name');
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { data, error } = await supabase
+        .from('categories')
+        .update({
+          name: formData.name.trim()
+        })
+        .eq('id', id)
+        .select();
+
+      if (error) throw error;
+
       // Show success notification
       setShowSuccess(true);
       
@@ -44,6 +94,16 @@ const EditCategory = () => {
   const handleBack = () => {
     navigate('/admin/categories');
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="flex-1 p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading category...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-8">
@@ -73,16 +133,18 @@ const EditCategory = () => {
           {/* Category Name */}
           <div>
             <label className="block b1 text-brown-400 mb-2">
-              Category name
+              Category name *
             </label>
             <input
               type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Category name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter category name"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
             />
           </div>
+
         </div>
       </div>
 

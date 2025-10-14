@@ -3,28 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import SuccessNotification from '../components/SuccessNotification';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, articleId: null, articleTitle: '' });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch all articles
+  // Fetch all articles from local server
   const fetchArticles = async () => {
     try {
       setIsLoading(true);
-      // Fetch all articles without pagination
-      const response = await axios.get('https://blog-post-project-api.vercel.app/posts', {
+      const response = await axios.get('http://localhost:4001/posts', {
         params: {
-          limit: 100 // Get more articles for admin management
+          limit: 100 // Get all articles for admin management
         }
       });
-      setArticles(response.data.posts || []);
+      
+      // Format data from Supabase
+      const formattedArticles = response.data.posts.map(post => ({
+        id: post.id,
+        title: post.title,
+        description: post.description,
+        content: post.content,
+        image: post.image,
+        category: post.categories?.name || 'Uncategorized',
+        category_id: post.category_id,
+        status_id: post.status_id,
+        date: post.date,
+        likes_count: post.likes_count || 0
+      }));
+      
+      setArticles(formattedArticles);
     } catch (error) {
       console.error('Error fetching articles:', error);
     } finally {
@@ -32,8 +50,19 @@ const ArticleManagement = () => {
     }
   };
 
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://localhost:4001/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   useEffect(() => {
     fetchArticles();
+    fetchCategories();
   }, []);
 
   // Filter articles based on search and filters
@@ -51,7 +80,8 @@ const ArticleManagement = () => {
 
     // Status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(article => article.status === statusFilter);
+      const statusMap = { 'published': 1, 'draft': 2 };
+      filtered = filtered.filter(article => article.status_id === statusMap[statusFilter]);
     }
 
     // Category filter
@@ -63,7 +93,7 @@ const ArticleManagement = () => {
   }, [articles, searchTerm, statusFilter, categoryFilter]);
 
   // Get unique categories for filter
-  const categories = [...new Set(articles.map(article => article.category))];
+  const uniqueCategories = [...new Set(articles.map(article => article.category))];
 
   const handleCreateArticle = () => {
     // Navigate to create article page
@@ -81,15 +111,24 @@ const ArticleManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      // In a real app, you would call the delete API here
-      // await axios.delete(`https://blog-post-project-api.vercel.app/posts/${deleteModal.articleId}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:4001/posts/${deleteModal.articleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       
-      // For now, just remove from local state
+      // Remove from local state
       setArticles(articles.filter(article => article.id !== deleteModal.articleId));
-      console.log('Article deleted:', deleteModal.articleId);
+      // Show success notification
+      setSuccessMessage('Article deleted successfully');
+      setShowSuccess(true);
       
       // Close modal
       setDeleteModal({ isOpen: false, articleId: null, articleTitle: '' });
+      
+      // Hide success notification after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error deleting article:', error);
     }
@@ -140,42 +179,27 @@ const ArticleManagement = () => {
           </div>
 
           {/* Status Filter */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-            >
-              <option value="all">Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-              <option value="archived">Archived</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+          >
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
 
           {/* Category Filter */}
-          <div className="relative">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-            >
-              <option value="all">Category</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+          >
+            <option value="all">All Categories</option>
+            {uniqueCategories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -225,8 +249,10 @@ const ArticleManagement = () => {
                   {/* Status */}
                   <div className="col-span-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Published</span>
+                      <div className={`w-2 h-2 rounded-full ${article.status_id === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                      <span className="text-sm text-gray-600">
+                        {article.status_id === 1 ? 'Published' : 'Draft'}
+                      </span>
                     </div>
                   </div>
 
@@ -265,6 +291,14 @@ const ArticleManagement = () => {
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         articleTitle={deleteModal.articleTitle}
+      />
+
+      {/* Success Notification */}
+      <SuccessNotification
+        isVisible={showSuccess}
+        title="Delete article"
+        message={successMessage}
+        onClose={() => setShowSuccess(false)}
       />
     </div>
   );

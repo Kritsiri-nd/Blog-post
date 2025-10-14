@@ -1,32 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Filter, SortAsc, SortDesc } from 'lucide-react';
+import { supabase } from '../lib/supabase.js';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import SuccessNotification from '../components/SuccessNotification';
 
 const CategoryManagement = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Cat' },
-    { id: 2, name: 'General' },
-    { id: 3, name: 'Inspiration' }
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredCategories, setFilteredCategories] = useState(categories);
+  const [sortBy, setSortBy] = useState('name'); // 'name' only
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
+  const [isLoading, setIsLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, categoryId: null, categoryName: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Filter categories based on search
+  // Fetch categories from Supabase
   useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Filter and sort categories
+  useEffect(() => {
+    let filtered = categories;
+
+    // Apply search filter
     if (searchTerm) {
-      setFilteredCategories(categories.filter(category =>
+      filtered = filtered.filter(category =>
         category.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-    } else {
-      setFilteredCategories(categories);
+      );
     }
-  }, [categories, searchTerm]);
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy]?.toString().toLowerCase() || '';
+      let bValue = b[sortBy]?.toString().toLowerCase() || '';
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredCategories(filtered);
+  }, [categories, searchTerm, sortBy, sortOrder]);
+
+  const fetchCategories = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) throw error;
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateCategory = () => {
     navigate('/admin/categories/create');
@@ -42,6 +80,13 @@ const CategoryManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', deleteModal.categoryId);
+
+      if (error) throw error;
+
       // Remove from local state
       setCategories(categories.filter(category => category.id !== deleteModal.categoryId));
       
@@ -56,6 +101,15 @@ const CategoryManagement = () => {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error deleting category:', error);
+    }
+  };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
     }
   };
 
@@ -77,17 +131,37 @@ const CategoryManagement = () => {
         </button>
       </div>
 
-      {/* Search Bar */}
+      {/* Search and Filter Bar */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-          />
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+            />
+          </div>
+          
+          {/* Sort Options */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSort('name')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                sortBy === 'name' 
+                  ? 'bg-brown-100 border-brown-300 text-brown-700' 
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-sm">Name</span>
+              {sortBy === 'name' && (
+                sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -96,13 +170,17 @@ const CategoryManagement = () => {
         {/* Table Header */}
         <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
           <div className="text-sm font-medium text-gray-600">
-            Category
+            Category Name
           </div>
         </div>
 
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
-          {filteredCategories.length === 0 ? (
+          {isLoading ? (
+            <div className="px-6 py-8 text-center text-gray-500">
+              Loading categories...
+            </div>
+          ) : filteredCategories.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
               {searchTerm ? 'No categories found matching your search.' : 'No categories found.'}
             </div>

@@ -5,7 +5,7 @@ const SuccessNotification = ({ isVisible, title, message, onClose }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
+    <div className="fixed bottom-4 right-4 bg-green text-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="font-semibold text-sm mb-1">{title}</h3>

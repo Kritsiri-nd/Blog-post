@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import ResetPassword from "./pages/ResetPassword";
 import ArticleManagement from "./pages/ArticleManagement";
 import CreateArticle from "./pages/CreateArticle";
+import EditArticle from "./pages/EditArticle";
 import CategoryManagement from "./pages/CategoryManagement";
 import CreateCategory from "./pages/CreateCategory";
 import EditCategory from "./pages/EditCategory";
@@ -148,6 +149,18 @@ function AppRoutes() {
         >
           <AdminLayout>
             <CreateArticle />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/articles/edit/:postId" element={
+        <ProtectedRoute
+          isLoading={isLoading}
+          isAuthenticated={isAuthenticated}
+          userRole={user?.role}
+          requiredRole="admin"
+        >
+          <AdminLayout>
+            <EditArticle />
           </AdminLayout>
         </ProtectedRoute>
       } />

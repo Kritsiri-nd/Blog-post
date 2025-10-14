@@ -1,27 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import SuccessNotification from '../components/SuccessNotification';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 
-const CreateArticle = () => {
+const EditArticle = () => {
   const navigate = useNavigate();
+  const { postId } = useParams();
   const [formData, setFormData] = useState({
     thumbnail: null,
+    existingImage: '',
     category_id: '',
     title: '',
     description: '',
-    content: ''
+    content: '',
+    status_id: 1
   });
   const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Fetch categories
+  // Fetch article data
   useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`http://localhost:4001/posts/${postId}`);
+        const article = response.data;
+        
+        setFormData({
+          thumbnail: null,
+          existingImage: article.image || '',
+          category_id: article.category_id || '',
+          title: article.title || '',
+          description: article.description || '',
+          content: article.content || '',
+          status_id: article.status_id || 1
+        });
+      } catch (error) {
+        console.error('Error fetching article:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const fetchCategories = async () => {
       try {
         const response = await axios.get('http://localhost:4001/categories');
@@ -30,8 +56,10 @@ const CreateArticle = () => {
         console.error('Error fetching categories:', error);
       }
     };
+
+    fetchArticle();
     fetchCategories();
-  }, []);
+  }, [postId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -73,20 +101,13 @@ const CreateArticle = () => {
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `posts/${fileName}`;
 
-      // Use admin client to bypass RLS
-      const { data, error } = await supabaseAdmin.storage
+      const { data, error } = await supabase.storage
         .from('posts')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(filePath, file);
 
-      if (error) {
-        console.error('Supabase upload error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      const { data: { publicUrl } } = supabaseAdmin.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('posts')
         .getPublicUrl(filePath);
 
@@ -101,7 +122,7 @@ const CreateArticle = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.thumbnail) {
+    if (!formData.thumbnail && !formData.existingImage) {
       newErrors.thumbnail = 'กรุณาอัปโหลดรูปภาพ';
     }
     
@@ -125,35 +146,25 @@ const CreateArticle = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async (status_id) => {
-    setIsLoading(true);
+  const handleUpdate = async (status_id) => {
+    setIsSaving(true);
     try {
       const token = localStorage.getItem('token');
       
       // Validate form
       if (!validateForm()) {
-        setIsLoading(false);
+        setIsSaving(false);
         return;
       }
+      
+      let imageUrl = formData.existingImage;
 
-      // Check authentication
-      if (!token) {
-        navigate('/admin/login');
-        return;
-      }
-
-      // Upload image if exists
-      let imageUrl = '';
+      // Upload new image if selected
       if (formData.thumbnail) {
-        try {
-          imageUrl = await uploadImage(formData.thumbnail);
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
-          return;
-        }
+        imageUrl = await uploadImage(formData.thumbnail);
       }
 
-      const postData = {
+      const updateData = {
         title: formData.title,
         description: formData.description,
         content: formData.content,
@@ -162,7 +173,7 @@ const CreateArticle = () => {
         status_id: status_id
       };
 
-      await axios.post('http://localhost:4001/posts', postData, {
+      await axios.put(`http://localhost:4001/posts/${postId}`, updateData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -177,37 +188,44 @@ const CreateArticle = () => {
         navigate('/admin/articles');
       }, 2000);
     } catch (error) {
-      console.error('Error saving article:', error);
-      if (error.response?.status === 401) {
-        navigate('/admin/login');
-      }
+      console.error('Error updating article:', error);
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handleSaveAsDraft = () => handleSave(2);
-  const handleSaveAndPublish = () => handleSave(1);
+  const handleSaveAsDraft = () => handleUpdate(2);
+  const handleSaveAndPublish = () => handleUpdate(1);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading article...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="h3  text-brown-600 ">Create article</h1>
+        <h1 className="h3 text-brown-600">Edit article</h1>
         <div className="flex gap-3">
           <button
             onClick={handleSaveAsDraft}
-            disabled={isLoading}
+            disabled={isSaving}
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
           >
-            {isLoading ? 'Saving...' : 'Save as draft'}
+            {isSaving ? 'Saving...' : 'Save as draft'}
           </button>
           <button
             onClick={handleSaveAndPublish}
-            disabled={isLoading}
+            disabled={isSaving}
             className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
           >
-            {isLoading ? 'Publishing...' : 'Save and publish'}
+            {isSaving ? 'Publishing...' : 'Save and publish'}
           </button>
         </div>
       </div>
@@ -217,8 +235,8 @@ const CreateArticle = () => {
         <div className="space-y-6">
           {/* Thumbnail Image */}
           <label className="block b1 text-brown-400 mb-2">
-              Thumbnail image
-            </label>
+            Thumbnail image
+          </label>
           <div className='flex flex-row gap-4 items-end'>
             <div className={`border-2 border-dashed rounded-lg p-4 text-center w-140 h-80 relative overflow-hidden ${
               errors.thumbnail 
@@ -226,18 +244,20 @@ const CreateArticle = () => {
                 : 'border-blue-300'
             }`}>
               {formData.thumbnail ? (
-                <div className="w-full h-full">
-                  <img
-                    src={URL.createObjectURL(formData.thumbnail)}
-                    alt="Thumbnail preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
+                <img
+                  src={URL.createObjectURL(formData.thumbnail)}
+                  alt="Thumbnail preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : formData.existingImage ? (
+                <img
+                  src={formData.existingImage}
+                  alt="Current thumbnail"
+                  className="w-full h-full object-cover rounded-lg"
+                />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full space-y-2">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Upload className="w-4 h-4 text-brown-600 b1" />
-                  </div>
+                  <Upload className="w-8 h-8 text-brown-600" />
                   <p className="text-xs text-gray-500">No image selected</p>
                 </div>
               )}
@@ -252,9 +272,9 @@ const CreateArticle = () => {
               />
               <button
                 onClick={() => document.getElementById('thumbnail-upload').click()}
-                className="px-3 py-1.5 border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors  b1"
+                className="px-3 py-1.5 border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors b1"
               >
-                Upload thumbnail image
+                Upload new thumbnail
               </button>
             </div>
           </div>
@@ -359,7 +379,7 @@ const CreateArticle = () => {
       {/* Success Notification */}
       <SuccessNotification
         isVisible={showSuccess}
-        title="Article saved"
+        title="Article updated"
         message={successMessage}
         onClose={() => setShowSuccess(false)}
       />
@@ -367,4 +387,5 @@ const CreateArticle = () => {
   );
 };
 
-export default CreateArticle;
+export default EditArticle;
+
