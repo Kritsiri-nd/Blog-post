@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import axios from 'axios';
 import SuccessNotification from '../components/SuccessNotification';
 
 const AdminResetPassword = () => {
@@ -71,8 +72,25 @@ const AdminResetPassword = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
+
+      await axios.post(
+        'http://localhost:4001/auth/reset-password',
+        {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       
       // Show success notification
       setShowSuccess(true);
@@ -88,6 +106,12 @@ const AdminResetPassword = () => {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error resetting password:', error);
+      
+      if (error.response?.status === 401) {
+        setErrors({ currentPassword: 'รหัสผ่านปัจจุบันไม่ถูกต้อง' });
+      } else if (error.response?.status === 400) {
+        setErrors({ currentPassword: error.response.data.message || 'รหัสผ่านปัจจุบันไม่ถูกต้อง' });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -128,6 +152,7 @@ const AdminResetPassword = () => {
               name="currentPassword"
               value={formData.currentPassword}
               onChange={handleInputChange}
+              placeholder="Current password"
               className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
                 errors.currentPassword ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -147,6 +172,7 @@ const AdminResetPassword = () => {
               name="newPassword"
               value={formData.newPassword}
               onChange={handleInputChange}
+              placeholder="New password"
               className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
                 errors.newPassword ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -166,6 +192,7 @@ const AdminResetPassword = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
+              placeholder="Confirm new password"
               className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent ${
                 errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
               }`}

@@ -1,16 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/authentication.jsx';
 import { Upload } from 'lucide-react';
+import axios from 'axios';
 import SuccessNotification from '../components/SuccessNotification';
+import { uploadProfileImage } from '../lib/imageUpload.js';
 
 const AdminProfile = () => {
+  const { user, fetchUser } = useAuth();
   const [formData, setFormData] = useState({
-    name: 'Thompson P.',
-    username: 'thompson',
-    email: 'thompson.p@gmail.com',
-    bio: 'I am a pet enthusiast and freelance writer who specializes in animal behavior and care. With a deep love for cats, I enjoy sharing insights on feline companionship and wellness. When i\'m not writing, I spends time volunteering at my local animal shelter, helping cats find loving homes.'
+    name: '',
+    username: '',
+    email: '',
+    bio: '',
+    profile_pic: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        username: user.username || '',
+        email: user.email || '',
+        bio: user.bio || '',
+        profile_pic: user.profilePic || ''
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -18,13 +36,31 @@ const AdminProfile = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Handle file upload logic here
-      console.log('File selected:', file);
+      setFormData(prev => ({
+        ...prev,
+        profile_pic: file
+      }));
+      
+      // Clear error when user selects file
+      if (errors.profile_pic) {
+        setErrors(prev => ({
+          ...prev,
+          profile_pic: ''
+        }));
+      }
     }
   };
 
@@ -32,8 +68,46 @@ const AdminProfile = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        return;
+      }
+
+      // Prepare form data for API
+      const updateData = {
+        name: formData.name,
+        username: formData.username,
+        bio: formData.bio
+      };
+
+      // If profile picture is a file, upload to Supabase Storage
+      if (formData.profile_pic instanceof File) {
+        try {
+          const imageUrl = await uploadProfileImage(formData.profile_pic, user.id);
+          updateData.profile_pic = imageUrl;
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          setErrors({ profile_pic: 'Failed to upload image. Please try again.' });
+          setIsLoading(false);
+          return;
+        }
+      } else if (formData.profile_pic) {
+        updateData.profile_pic = formData.profile_pic;
+      }
+
+      const response = await axios.put(
+        'http://localhost:4001/auth/update-profile',
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      // Refresh user data
+      await fetchUser();
       
       // Show success notification
       setShowSuccess(true);
@@ -42,6 +116,10 @@ const AdminProfile = () => {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
+      
+      if (error.response?.status === 400) {
+        setErrors({ username: error.response.data.error });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +145,7 @@ const AdminProfile = () => {
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
             <img
-              src="/src/assets/authorPhoto.jpg"
+              src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || "/src/assets/authorPhoto.jpg")}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover"
             />
@@ -122,18 +200,15 @@ const AdminProfile = () => {
             />
           </div>
 
-          {/* Email */}
+          {/* Email - Read Only */}
           <div>
             <label className="block b1 text-brown-400 mb-2">
               Email
             </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-            />
+            <div className="w-full px-4 py-3 text-gray-600 bg-gray-50 border border-gray-200 rounded-lg">
+              {formData.email}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
           </div>
 
           {/* Bio */}
