@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/authentication.jsx';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock } from 'lucide-react';
-import { toast } from 'sonner';
+import axios from 'axios';
+import SuccessNotification from '../components/SuccessNotification';
+import { uploadProfileImage } from '../lib/imageUpload.js';
 
 const Profile = () => {
     const { user, isAuthenticated, fetchUser } = useAuth();
@@ -10,18 +12,21 @@ const Profile = () => {
     const [formData, setFormData] = useState({
         name: '',
         username: '',
-        email: ''
+        email: '',
+        profile_pic: ''
     });
     const [isEditing, setIsEditing] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (user) {
             setFormData({
                 name: user.name || '',
                 username: user.username || '',
-                email: user.email || ''
+                email: user.email || '',
+                profile_pic: user.profilePic || ''
             });
         }
     }, [user]);
@@ -32,45 +37,91 @@ const Profile = () => {
             ...prev,
             [name]: value
         }));
+        
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({
+                ...prev,
+                profile_pic: file
+            }));
+            
+            // Clear error when user selects file
+            if (errors.profile_pic) {
+                setErrors(prev => ({
+                    ...prev,
+                    profile_pic: ''
+                }));
+            }
+        }
     };
 
     const handleSave = async () => {
         setIsLoading(true);
 
         try {
-            // Call real API to update profile
-            const response = await fetch('http://localhost:4001/auth/update-profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    username: formData.username
-                })
-            });
-
-            if (response.ok) {
-                const updatedUser = await response.json();
-                // Refresh user data in context
-                await fetchUser();
-                toast.success('Profile updated successfully!');
-                setIsEditing(true);
-                setShowSuccess(true);
-
-                // Hide success message after 3 seconds
-                setTimeout(() => {
-                    setShowSuccess(false);
-                }, 3000);
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.error || 'Failed to update profile');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                return;
             }
+
+            // Prepare form data for API
+            const updateData = {
+                name: formData.name,
+                username: formData.username
+            };
+
+            // If profile picture is a file, upload to Supabase Storage
+            if (formData.profile_pic instanceof File) {
+                try {
+                    const imageUrl = await uploadProfileImage(formData.profile_pic, user.id);
+                    updateData.profile_pic = imageUrl;
+                } catch (uploadError) {
+                    console.error('Image upload failed:', uploadError);
+                    setErrors({ profile_pic: 'Failed to upload image. Please try again.' });
+                    setIsLoading(false);
+                    return;
+                }
+            } else if (formData.profile_pic) {
+                updateData.profile_pic = formData.profile_pic;
+            }
+
+            const response = await axios.put(
+                'http://localhost:4001/auth/update-profile',
+                updateData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            // Refresh user data
+            await fetchUser();
+            setIsEditing(true);
+            setShowSuccess(true);
+
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 3000);
 
         } catch (error) {
             console.error('Error updating profile:', error);
-            toast.error('Failed to update profile. Please try again.');
+            
+            if (error.response?.status === 400) {
+                setErrors({ username: error.response.data.error });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -81,7 +132,8 @@ const Profile = () => {
         setFormData({
             name: user.name || '',
             username: user.username || '',
-            email: user.email || ''
+            email: user.email || '',
+            profile_pic: user.profilePic || ''
         });
         setIsEditing(true);
     };
@@ -107,7 +159,7 @@ const Profile = () => {
                 {/* User Info Header */}
                 <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
                     <img
-                        src={user?.avatar}
+                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar)}
                         alt={user?.name}
                         className="w-8 h-8 rounded-full object-cover"
                     />
@@ -121,11 +173,21 @@ const Profile = () => {
                     {/* Profile Picture Section */}
                     <div className="flex flex-col items-center">
                         <img
-                            src={user?.avatar}
+                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar)}
                             alt={user?.name}
                             className="w-32 h-32 rounded-full object-cover mb-6"
                         />
-                        <button className="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                            id="profile-upload-mobile"
+                        />
+                        <button 
+                            onClick={() => document.getElementById('profile-upload-mobile').click()}
+                            className="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
                             Upload profile picture
                         </button>
                     </div>
@@ -162,14 +224,15 @@ const Profile = () => {
                             />
                         </div>
 
-                        {/* Email Field */}
+                        {/* Email Field - Read Only */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                                 Email
                             </label>
-                            <div className="w-full px-3 py-2 text-gray-600 bg-transparent">
+                            <div className="w-full px-3 py-2 text-gray-600 bg-gray-50 border border-gray-200 rounded-lg">
                                 {formData.email}
                             </div>
+                            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                         </div>
 
                         {/* Save Button */}
@@ -192,7 +255,7 @@ const Profile = () => {
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-8 px-5">
                         <img
-                            src={user?.avatar}
+                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar)}
                             alt={user?.name}
                             className="w-12 h-12 rounded-full object-cover"
                         />
@@ -230,11 +293,21 @@ const Profile = () => {
                                 {/* Profile Picture Section */}
                                 <div className="flex items-center gap-6 mb-8">
                                     <img
-                                        src={user?.avatar}
+                                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar)}
                                         alt={user?.name}
                                         className="w-24 h-24 rounded-full object-cover"
                                     />
-                                    <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        id="profile-upload-desktop"
+                                    />
+                                    <button 
+                                        onClick={() => document.getElementById('profile-upload-desktop').click()}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
                                         Upload profile picture
                                     </button>
                                 </div>
@@ -274,14 +347,15 @@ const Profile = () => {
                                         />
                                     </div>
 
-                                    {/* Email Field */}
+                                    {/* Email Field - Read Only */}
                                     <div>
                                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                                             Email
                                         </label>
-                                        <div className="w-full px-3 py-2 text-gray-600 bg-transparent">
+                                        <div className="w-full px-3 py-2 text-gray-600 bg-gray-50 border border-gray-200 rounded-lg">
                                             {formData.email}
                                         </div>
+                                        <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                                     </div>
 
                                     {/* Save Button */}
@@ -302,24 +376,12 @@ const Profile = () => {
             </div>
 
             {/* Success Notification */}
-            {showSuccess && (
-                <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-sm z-50">
-                    <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                            <p className="font-medium text-sm">Saved profile</p>
-                            <p className="text-xs mt-1 opacity-90">Your profile has been successfully updated</p>
-                        </div>
-                        <button
-                            onClick={() => setShowSuccess(false)}
-                            className="ml-3 text-white hover:text-gray-200 transition-colors"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
+            <SuccessNotification
+                isVisible={showSuccess}
+                title="Saved profile"
+                message="Your profile has been successfully updated"
+                onClose={() => setShowSuccess(false)}
+            />
         </div>
     );
 };

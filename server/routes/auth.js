@@ -139,6 +139,7 @@ authRouter.get("/get-user", protectUser, async (req, res) => {
             name: userData.name,
             role: userData.role,
             profilePic: userData.profile_pic,
+            bio: userData.bio,
         });
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
@@ -198,7 +199,7 @@ authRouter.post("/reset-password", protectUser, validateResetPassword, async (re
 
 // PUT /auth/update-profile - อัพเดทโปรไฟล์ผู้ใช้
 authRouter.put("/update-profile", protectUser, async (req, res) => {
-    const { name, username } = req.body;
+    const { name, username, bio, profile_pic } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
@@ -232,6 +233,8 @@ authRouter.put("/update-profile", protectUser, async (req, res) => {
         const updateData = {};
         if (name) updateData.name = name;
         if (username) updateData.username = username;
+        if (bio !== undefined) updateData.bio = bio;
+        if (profile_pic) updateData.profile_pic = profile_pic;
 
         const { data: userData, error: updateError } = await supabase
             .from('users')
@@ -253,6 +256,7 @@ authRouter.put("/update-profile", protectUser, async (req, res) => {
                 name: userData.name,
                 role: userData.role,
                 profilePic: userData.profile_pic,
+                bio: userData.bio,
             }
         });
 
