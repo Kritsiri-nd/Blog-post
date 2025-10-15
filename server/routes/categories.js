@@ -1,15 +1,7 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import supabase from '../utils/supabaseClient.js';
 
 const router = express.Router();
-
-// Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // GET /categories - ดึงข้อมูล categories ทั้งหมด
 router.get("/", async (req, res) => {
