@@ -1,16 +1,9 @@
 import { Router } from "express";
-import { createClient } from "@supabase/supabase-js";
+import supabase from "../utils/supabaseClient.js";
 import protectUser from "../middleware/protectUser.mjs";
 import protectAdmin from "../middleware/protectAdmin.mjs";
 import { validateRegister, validateLogin, validateResetPassword } from "../middleware/authValidation.js";
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
 const authRouter = Router();
 
 authRouter.post("/register", validateRegister, async (req, res) => {
