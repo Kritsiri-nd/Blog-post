@@ -1,51 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/authentication';
+import axios from 'axios';
+import { formatDistanceToNow } from 'date-fns';
 
 const AdminNotification = () => {
   const navigate = useNavigate();
-  const [notifications] = useState([
-    {
-      id: 1,
-      type: 'comment',
-      user: {
-        name: 'Jacob Lash',
-        avatar: '/src/assets/authorPhoto.jpg'
-      },
-      action: 'Commented on your article: The Fascinating World of Cats: Why We Love Our Furry Friends',
-      content: 'I loved this article! It really explains why my cat is so independent yet loving. The purring section was super interesting.',
-      time: '4 hours ago',
-      articleId: 1
-    },
-    {
-      id: 2,
-      type: 'like',
-      user: {
-        name: 'Jacob Lash',
-        avatar: '/src/assets/authorPhoto.jpg'
-      },
-      action: 'liked your article: The Fascinating World of Cats: Why We Love Our Furry Friends',
-      content: null,
-      time: '4 hours ago',
-      articleId: 1
-    }
-  ]);
+  const { token } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleViewArticle = (articleId) => {
-    navigate(`/post/${articleId}`);
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get('http://localhost:4001/notifications', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Filter for notifications relevant to admin (likes/comments on their posts)
+        const adminNotifications = response.data.notifications.filter(
+          (n) => n.type === 'like_post' || n.type === 'comment_post'
+        );
+        setNotifications(adminNotifications);
+      } catch (error) {
+        console.error('Failed to fetch admin notifications:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [token]);
+
+  const handleViewArticle = (postId) => {
+    navigate(`/posts/${postId}`);
+  };
+
+  const getNotificationText = (notification) => {
+    const postTitle = <span className="font-semibold">{notification.post.title}</span>;
+    if (notification.type === 'like_post') {
+      return <>liked your article: {postTitle}</>;
+    }
+    if (notification.type === 'comment_post') {
+      return <>commented on your article: {postTitle}</>;
+    }
+    return '';
   };
 
   return (
     <div className="flex-1 p-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="h3 text-brown-600">Notification</h1>
+        <h1 className="h3 text-gray-800">Notification</h1>
       </div>
 
-      {/* Notifications List */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {notifications.length === 0 ? (
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {loading ? (
+          <div className="px-6 py-8 text-center text-gray-500">Loading...</div>
+        ) : notifications.length === 0 ? (
           <div className="px-6 py-8 text-center text-gray-500">
-            No notifications found.
+            You have no new notifications.
           </div>
         ) : (
           notifications.map((notification, index) => (
@@ -53,53 +69,28 @@ const AdminNotification = () => {
               index !== notifications.length - 1 ? 'border-b border-gray-200' : ''
             }`}>
               <div className="flex items-start gap-4">
-                {/* User Avatar */}
-                <div className="flex-shrink-0">
-                  <img
-                    src={notification.user.avatar}
-                    alt={notification.user.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                </div>
-
-                {/* Notification Content */}
+                <img
+                  src={notification.actor.profile_pic || '/default-avatar.png'}
+                  alt={notification.actor.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      {/* User Name and Action */}
-                      <div className="mb-2">
-                        <span className="font-semibold text-brown-600">
-                          {notification.user.name}
-                        </span>
-                        <span className="text-gray-700 ml-1">
-                          {notification.action}
-                        </span>
-                      </div>
-
-                      {/* Comment Content (if exists) */}
-                      {notification.content && (
-                        <div className="mb-2">
-                          <p className="text-gray-600 italic">
-                            "{notification.content}"
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Time */}
-                      <div className="text-sm text-gray-500">
-                        {notification.time}
-                      </div>
+                      <p className="text-gray-800">
+                        <span className="font-semibold">{notification.actor.name}</span>{' '}
+                        {getNotificationText(notification)}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                      </p>
                     </div>
-
-                    {/* View Button */}
-                    <div className="flex-shrink-0 ml-4">
-                      <button
-                        onClick={() => handleViewArticle(notification.articleId)}
-                        className="text-brown-600 hover:text-brown-800 font-medium text-sm transition-colors"
-                      >
-                        View
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleViewArticle(notification.post.id)}
+                      className="text-orange-500 hover:text-orange-700 font-semibold text-sm transition-colors ml-4"
+                    >
+                      View
+                    </button>
                   </div>
                 </div>
               </div>

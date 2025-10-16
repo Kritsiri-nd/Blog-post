@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./Button"
 import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authentication.jsx";
+import NotificationDropdown from "./NotificationDropdown.jsx";
+import axios from 'axios';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
+
 function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { user, isAuthenticated, logout, token } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -22,11 +27,42 @@ function Navbar() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  useEffect(() => {
+    const fetchUnreadStatus = async () => {
+      if (!user) return;
+      try {
+        const response = await axios.get('http://localhost:4001/notifications', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const unread = response.data.notifications.some(n => !n.is_read);
+        setHasUnread(unread);
+      } catch (error) {
+        console.error('Failed to fetch unread status:', error);
+      }
+    };
+
+    fetchUnreadStatus();
+    const interval = setInterval(fetchUnreadStatus, 60000); // Check for new notifications every 60 seconds
+
+    return () => clearInterval(interval);
+  }, [user, token]);
+
+  const handleNotificationClick = () => {
+    setShowNotifications(prev => !prev);
+    if (hasUnread) {
+        setHasUnread(false); // Optimistically update UI
+    }
+  };
+
   // Close mobile menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (isMobileMenuOpen && !event.target.closest('.mobile-menu-container')) {
         setIsMobileMenuOpen(false);
+      }
+      // Close notification dropdown if clicking outside
+      if (showNotifications && !event.target.closest('.notification-container')) {
+        setShowNotifications(false);
       }
     };
 
@@ -34,7 +70,7 @@ function Navbar() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, showNotifications]);
 
   return (
     <nav className="w-full  mx-auto flex items-center justify-between py-4 px-20 border border-[#DAD6D1]">
@@ -46,9 +82,12 @@ function Navbar() {
           // User Profile Section
           <div className="flex items-center gap-4">
             {/* Notification Bell */}
-            <div className="relative">
-              <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+            <div className="relative notification-container">
+              <button onClick={handleNotificationClick} className="focus:outline-none">
+                <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
+                {hasUnread && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>}
+              </button>
+              {showNotifications && <NotificationDropdown onClose={() => setShowNotifications(false)} />}
             </div>
 
             {/* User Profile Dropdown */}
@@ -129,9 +168,12 @@ function Navbar() {
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{user?.name || "Moodeng ja"}</p>
                   </div>
-                  <div className="relative">
-                    <Bell className="w-6 h-6 text-gray-600" />
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="relative notification-container">
+                    <button onClick={handleNotificationClick} className="focus:outline-none">
+                        <Bell className="w-6 h-6 text-gray-600" />
+                        {hasUnread && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>}
+                    </button>
+                    {showNotifications && <NotificationDropdown onClose={() => setShowNotifications(false)} />}
                   </div>
                 </div>
 
