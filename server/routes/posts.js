@@ -9,15 +9,44 @@ dotenv.config();
 
 const router = express.Router();
 
+// ฟังก์ชันสำหรับส่ง Notification เมื่อมีโพสต์ใหม่จาก Admin
+const sendNewPostNotification = async (postId, authorId) => {
+    try {
+        // ดึงรายชื่อ User ทั้งหมด (ที่ไม่ใช่ admin)
+        const { data: usersToNotify, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('role', 'user');
+
+        if (userError) throw userError;
+
+        // สร้าง Notification สำหรับ User แต่ละคน
+        const notifications = usersToNotify.map(user => ({
+            user_to_notify_id: user.id,
+            actor_id: authorId,
+            type: 'new_post',
+            post_id: postId,
+        }));
+
+        if (notifications.length > 0) {
+            await supabase.from('notifications').insert(notifications);
+        }
+    } catch (error) {
+        console.error('Failed to send new post notifications:', error);
+    }
+};
+
 // POST /posts - สร้างบทความใหม่ (ต้องเป็น user)
 router.post("/", protectUser, validatePostPost, async (req, res) => {
     try {
         const { title, image, category_id, description, content, status_id } = req.body;
+        const userId = req.user.id; // ดึง user_id จาก protectUser middleware
 
         // สร้างบทความใน Supabase
         const { data, error } = await supabase
             .from('posts')
             .insert({
+                user_id: userId, // เพิ่ม user_id ของผู้สร้าง
                 title,
                 image,
                 category_id,
@@ -27,15 +56,25 @@ router.post("/", protectUser, validatePostPost, async (req, res) => {
                 date: new Date().toISOString(), // เพิ่มวันที่ปัจจุบัน
                 likes_count: 0 // เริ่มต้นด้วย 0 likes
             })
-            .select();
+            .select()
+            .single(); // ใช้ single() เพราะเราคาดหวังผลลัพธ์เดียว
 
         if (error) {
             throw error;
         }
 
+        // ถ้าโพสต์ถูกเผยแพร่ (Published) และผู้สร้างเป็น Admin ให้แจ้งเตือน Member ทุกคน
+        const post = data;
+        const authorRole = req.user.role;
+        const PUBLISHED_STATUS_ID = 1; // สมมติว่า status_id = 1 คือ 'Published'
+
+        if (post && parseInt(status_id, 10) === PUBLISHED_STATUS_ID && authorRole === 'admin') {
+            await sendNewPostNotification(post.id, userId);
+        }
+
         res.status(201).json({
             "message": "Post created successfully",
-            "data": data[0]
+            "data": post
         });
 
     } catch (error) {
@@ -150,10 +189,10 @@ router.put("/:postId", protectUser, validatePutPost, async (req, res) => {
         // Destructuring เฉพาะ fields ที่ต้องการ
         const { title, content, category_id, description, image, status_id, date, likes_count } = req.body;
         
-        // ตรวจสอบว่าบทความมีอยู่หรือไม่
+        // ตรวจสอบว่าบทความมีอยู่หรือไม่ และดึงสถานะปัจจุบัน
         const { data: existingPost, error: fetchError } = await supabase
             .from('posts')
-            .select('id')
+            .select('id, status_id, user_id')
             .eq('id', postId)
             .single();
 
@@ -183,6 +222,20 @@ router.put("/:postId", protectUser, validatePutPost, async (req, res) => {
 
         if (error) {
             throw error;
+        }
+
+        // ตรวจสอบว่าสถานะถูกเปลี่ยนเป็น 'Published' หรือไม่
+        const PUBLISHED_STATUS_ID = 1;
+        const previousStatusId = existingPost.status_id;
+        const authorRole = req.user.role;
+
+        if (
+            status_id !== undefined &&
+            parseInt(status_id, 10) === PUBLISHED_STATUS_ID &&
+            previousStatusId !== PUBLISHED_STATUS_ID &&
+            authorRole === 'admin'
+        ) {
+            await sendNewPostNotification(postId, existingPost.user_id);
         }
 
         res.status(200).json({
@@ -339,6 +392,38 @@ router.post("/:postId/like", protectUser, async (req, res) => {
                 .eq('id', postId);
         }
         
+        // สร้าง Notification สำหรับเจ้าของโพสต์
+        try {
+            const { data: postData, error: postError } = await supabase
+                .from('posts')
+                .select('user_id')
+                .eq('id', postId)
+                .single();
+
+            if (postError) {
+                console.error("Error fetching post for notification:", postError.message);
+                return; // Exit if we can't get post info
+            }
+
+            // Ensure postData and user_id exist and the user is not the post owner
+            if (postData && postData.user_id && postData.user_id !== userId) {
+                const { error: notificationError } = await supabase
+                    .from('notifications')
+                    .insert({
+                        user_to_notify_id: postData.user_id,
+                        actor_id: userId,
+                        type: 'like_post',
+                        post_id: postId,
+                    });
+                
+                if (notificationError) {
+                    console.error("Error creating like notification:", notificationError.message);
+                }
+            }
+        } catch (e) {
+            console.error("Exception during like notification creation:", e.message);
+        }
+
         res.status(201).json({
             message: "Like added successfully",
             action: "liked",
@@ -433,6 +518,41 @@ router.post("/:postId/comments", protectUser, async (req, res) => {
         
         // ไม่ต้องอัปเดต comments_count เพราะ column ไม่มีใน posts table
         
+        // สร้าง Notification สำหรับเจ้าของโพสต์
+        try {
+            const { data: postData, error: postError } = await supabase
+                .from('posts')
+                .select('user_id')
+                .eq('id', postId)
+                .single();
+
+            if (postError) {
+                console.error("Error fetching post for notification:", postError.message);
+                return; // Exit if we can't get post info
+            }
+
+            // Ensure postData and user_id exist and the user is not the post owner
+            if (postData && postData.user_id && postData.user_id !== userId) {
+                const { error: notificationError } = await supabase
+                    .from('notifications')
+                    .insert({
+                        user_to_notify_id: postData.user_id,
+                        actor_id: userId,
+                        type: 'comment_post',
+                        post_id: postId,
+                    });
+
+                if (notificationError) {
+                    console.error("Error creating comment notification:", notificationError.message);
+                }
+            }
+        } catch (e) {
+            console.error("Exception during comment notification creation:", e.message);
+        }
+
+        // (Optional) แจ้งเตือนผู้ที่เคยคอมเมนต์ในโพสต์นี้
+        // For now, we will skip this part as it can be added later.
+
         res.status(201).json({
             message: "Comment added successfully",
             comment: {

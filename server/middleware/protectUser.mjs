@@ -16,8 +16,19 @@ const protectUser = async (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
 
-    // แนบข้อมูลผู้ใช้เข้ากับ request object
-    req.user = { ...data.user };
+    // ดึงข้อมูลโปรไฟล์เพิ่มเติมจากตาราง 'users'
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('role') // ดึงเฉพาะ role
+      .eq('id', data.user.id)
+      .single();
+
+    if (profileError || !userProfile) {
+      return res.status(404).json({ error: "User profile not found" });
+    }
+
+    // แนบข้อมูลผู้ใช้และ role เข้ากับ request object
+    req.user = { ...data.user, role: userProfile.role };
 
     // ดำเนินการต่อไปยัง middleware หรือ route handler ถัดไป
     next();

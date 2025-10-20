@@ -161,10 +161,11 @@ export const AuthProvider = ({ children }) => {
     user,
     isLoading,
     isAuthenticated: !!user,
+    token: localStorage.getItem('token'), // เพิ่มบรรทัดนี้
     login,
     logout,
     register,
-    signup: register, // Alias for register
+    signup: register,
     updateProfile,
     resetPassword,
     fetchUser
