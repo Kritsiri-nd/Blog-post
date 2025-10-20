@@ -1,4 +1,4 @@
-import Search from "../assets/Search.png";
+
 import * as React from "react";
 import axios from "axios";
 import {
@@ -11,10 +11,12 @@ import {
 } from "./ui/select";
 import BlogCard from "./BlogCard";
 import SearchBar from "./SearchBar";
+import { useAuth } from "../context/authentication.jsx";
 
 const categories = ["Highlight", "Cat", "Inspiration", "General"];
 
 function ArticleSection() {
+  const { user, isAuthenticated } = useAuth();
   const [category, setCategory] = React.useState("Highlight");
   const [posts, setPosts] = React.useState([]);
   const [page, setPage] = React.useState(1);
@@ -33,15 +35,21 @@ function ArticleSection() {
       // ใช้ category parameter เฉพาะเมื่อไม่ใช่ Highlight
       const categoryParam = category === "Highlight" ? "" : category;
       
-      const response = await axios.get(
-        "http://localhost:4001/posts", {
-          params: {
-            page: page,
-            limit: 6,
-            category: categoryParam
-          }
-        }
-      );
+      // ใช้ API endpoint ที่ถูกต้องตาม role
+      const apiUrl = (user?.role === 'admin') 
+        ? "http://localhost:4001/posts/admin" 
+        : "http://localhost:4001/posts";
+      
+      const response = await axios.get(apiUrl, {
+        params: {
+          page: page,
+          limit: 6,
+          category: categoryParam
+        },
+        headers: (user?.role === 'admin') ? {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        } : {}
+      });
       
       // ตรวจสอบว่าเป็นหน้าแรกหรือไม่
       if (page === 1) {

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SearchIcon from '../assets/Search.png';
+import { useAuth } from '../context/authentication.jsx';
 
 const SearchBar = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,15 +50,22 @@ const SearchBar = () => {
   const performSearch = async (keyword) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        'https://blog-post-project-api.vercel.app/posts',
-        {
-          params: {
-            keyword: keyword,
-            limit: 6 // Limit results for dropdown
-          }
-        }
-      );
+      console.log('Searching for:', keyword);
+      // ใช้ API endpoint ที่ถูกต้องตาม role
+      const apiUrl = (user?.role === 'admin') 
+        ? 'http://localhost:4001/posts/admin' 
+        : 'http://localhost:4001/posts';
+      
+      const response = await axios.get(apiUrl, {
+        params: {
+          keyword: keyword,
+          limit: 6 // Limit results for dropdown
+        },
+        headers: (user?.role === 'admin') ? {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        } : {}
+      });
+      console.log('Search response:', response.data);
       setSearchResults(response.data.posts || []);
       setShowDropdown(true);
       setSelectedIndex(-1);
@@ -179,7 +188,7 @@ const SearchBar = () => {
                   </p>
                   <div className="flex items-center space-x-2 mt-2">
                     <span className="inline-block px-2 py-1 text-xs bg-green-light text-green rounded-full">
-                      {post.category}
+                      {post.categories?.name || 'General'}
                     </span>
                     <span className="text-xs text-gray-400">
                       {formatDate(post.date)}

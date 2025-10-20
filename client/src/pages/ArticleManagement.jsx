@@ -22,9 +22,12 @@ const ArticleManagement = () => {
   const fetchArticles = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://localhost:4001/posts', {
+      const response = await axios.get('http://localhost:4001/posts/admin', {
         params: {
           limit: 100 // Get all articles for admin management
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       
