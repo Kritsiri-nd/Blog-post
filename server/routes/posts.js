@@ -84,7 +84,7 @@ router.post("/", protectUser, validatePostPost, async (req, res) => {
     }
 });
 
-// GET /posts - ดึงข้อมูลบทความทั้งหมด (พร้อม pagination และ filter)
+// GET /posts - ดึงข้อมูลบทความที่ published เท่านั้น (สำหรับ public)
 router.get("/", async (req, res) => {
     try {
         // ดึง query parameters
@@ -96,7 +96,7 @@ router.get("/", async (req, res) => {
         // คำนวณ offset สำหรับ pagination
         const offset = (page - 1) * limit;
 
-        // สร้าง query builder
+        // สร้าง query builder - เฉพาะบทความที่ published (status_id = 1)
         let query = supabase
             .from('posts')
             .select(`
@@ -109,7 +109,8 @@ router.get("/", async (req, res) => {
                 status_id,
                 likes_count,
                 categories!inner(name)
-            `, { count: 'exact' });
+            `, { count: 'exact' })
+            .eq('status_id', 1); // เฉพาะบทความที่ published
 
         // กรองตาม category (ถ้ามี)
         if (category) {
@@ -156,12 +157,133 @@ router.get("/", async (req, res) => {
     }
 });
 
-// GET /posts/:postId - ดึงข้อมูลบทความเดียวจาก Supabase
+// GET /posts/admin - ดึงข้อมูลบทความทั้งหมดสำหรับ admin (ทั้ง published และ draft)
+router.get("/admin", protectAdmin, async (req, res) => {
+    try {
+        // ดึง query parameters
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const category = req.query.category;
+        const keyword = req.query.keyword;
+        const status = req.query.status; // เพิ่ม filter สำหรับ status
+
+        // คำนวณ offset สำหรับ pagination
+        const offset = (page - 1) * limit;
+
+        // สร้าง query builder - แสดงทั้ง published และ draft
+        let query = supabase
+            .from('posts')
+            .select(`
+                id,
+                image,
+                title,
+                description,
+                date,
+                content,
+                status_id,
+                likes_count,
+                categories!inner(name)
+            `, { count: 'exact' });
+
+        // กรองตาม status (ถ้ามี)
+        if (status) {
+            query = query.eq('status_id', status);
+        }
+
+        // กรองตาม category (ถ้ามี)
+        if (category) {
+            query = query.eq('categories.name', category);
+        }
+
+        // ค้นหาตาม keyword (ถ้ามี)
+        if (keyword) {
+            query = query.or(`title.ilike.%${keyword}%,description.ilike.%${keyword}%,content.ilike.%${keyword}%`);
+        }
+
+        // เพิ่ม pagination
+        query = query.range(offset, offset + limit - 1);
+
+        // เรียงลำดับตาม date (ใหม่สุดก่อน)
+        query = query.order('date', { ascending: false });
+
+        // ดึงข้อมูล
+        const { data: posts, error, count } = await query;
+
+        if (error) {
+            throw error;
+        }
+
+        // คำนวณ totalPages
+        const totalPosts = count;
+        const totalPages = Math.ceil(totalPosts / limit);
+
+        // สร้าง response
+        const response = {
+            totalPosts,
+            totalPages,
+            currentPage: page,
+            limit,
+            posts: posts || [],
+            nextPage: page < totalPages ? page + 1 : null
+        };
+
+        res.status(200).json(response);
+
+    } catch (error) {
+        console.error('Server could not read admin posts because database connection:', error);
+        res.status(500).json({ "error": error.message });
+    }
+});
+
+// GET /posts/:postId - ดึงข้อมูลบทความเดียวจาก Supabase (เฉพาะ published สำหรับ public)
 router.get("/:postId", async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author
+        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author - เฉพาะบทความที่ published
+        const { data, error } = await supabase
+            .from('posts')
+            .select(`
+                *,
+                users!inner(id, name, bio, profile_pic)
+            `)
+            .eq('id', postId)
+            .eq('status_id', 1) // เฉพาะบทความที่ published
+            .single();
+
+        if (error) {
+            // ถ้าไม่พบข้อมูล
+            return res.status(404).json({
+                "message": "Server could not find a requested post"
+            });
+        }
+        
+        // จัดรูปแบบข้อมูลให้เหมาะสมกับ frontend
+        const formattedData = {
+            ...data,
+            author: data.users.name,
+            author_bio: data.users.bio,
+            author_avatar: data.users.profile_pic,
+            author_id: data.users.id
+        };
+        
+        // ลบข้อมูล users object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
+        delete formattedData.users;
+        
+        // ถ้าพบข้อมูล
+        res.status(200).json(formattedData);
+    } catch (error) {
+        console.error('Server could not read post because database connection:', error);
+        res.status(500).json({ "error": error.message });
+    }
+});
+
+// GET /posts/admin/:postId - ดึงข้อมูลบทความเดียวสำหรับ admin (ทั้ง published และ draft)
+router.get("/admin/:postId", protectAdmin, async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author - ทั้ง published และ draft
         const { data, error } = await supabase
             .from('posts')
             .select(`
@@ -193,7 +315,7 @@ router.get("/:postId", async (req, res) => {
         // ถ้าพบข้อมูล
         res.status(200).json(formattedData);
     } catch (error) {
-        console.error('Server could not read post because database connection:', error);
+        console.error('Server could not read admin post because database connection:', error);
         res.status(500).json({ "error": error.message });
     }
 });

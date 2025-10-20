@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SearchIcon from '../assets/Search.png';
+import { useAuth } from '../context/authentication.jsx';
 
 const SearchBar = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,15 +51,20 @@ const SearchBar = () => {
     setIsLoading(true);
     try {
       console.log('Searching for:', keyword);
-      const response = await axios.get(
-        'http://localhost:4001/posts',
-        {
-          params: {
-            keyword: keyword,
-            limit: 6 // Limit results for dropdown
-          }
-        }
-      );
+      // ใช้ API endpoint ที่ถูกต้องตาม role
+      const apiUrl = (user?.role === 'admin') 
+        ? 'http://localhost:4001/posts/admin' 
+        : 'http://localhost:4001/posts';
+      
+      const response = await axios.get(apiUrl, {
+        params: {
+          keyword: keyword,
+          limit: 6 // Limit results for dropdown
+        },
+        headers: (user?.role === 'admin') ? {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        } : {}
+      });
       console.log('Search response:', response.data);
       setSearchResults(response.data.posts || []);
       setShowDropdown(true);

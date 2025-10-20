@@ -29,7 +29,11 @@ const EditArticle = () => {
     const fetchArticle = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:4001/posts/${postId}`);
+        const response = await axios.get(`http://localhost:4001/posts/admin/${postId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
         const article = response.data;
         
         setFormData({
