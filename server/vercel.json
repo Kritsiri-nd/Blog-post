@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "app.mjs": { "runtime": "nodejs20.x" }
+    "app.mjs": { "runtime": "@vercel/node@20.x" }
   },
   "routes": [
     { "src": "/(.*)", "dest": "app.mjs" }
