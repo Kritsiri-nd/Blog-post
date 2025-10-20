@@ -156,7 +156,7 @@ function PostPage() {
                 <div className="text-sm text-gray-500 mb-2">Author</div>
                 <div className="flex items-center gap-4 mb-4">
                   <img
-                    src="/src/assets/authorPhoto.jpg"
+                    src={post.author_avatar || "/src/assets/authorPhoto.jpg"}
                     alt={post.author}
                     className="w-16 h-16 rounded-full object-cover"
                   />
@@ -167,9 +167,7 @@ function PostPage() {
                 
                 {/* Author Bio */}
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  I am a pet enthusiast and freelance writer who specializes in animal behavior and care. 
-                  With a deep love for cats, I enjoy sharing insights on feline companionship and wellness. 
-                  When I'm not writing, I spend time volunteering at my local animal shelter, helping cats find loving homes.
+                  {post.author_bio || "No bio available for this author."}
                 </p>
               </div>
             </div>
@@ -198,7 +196,7 @@ function PostPage() {
               {/* Author Photo */}
               <div className="flex items-center gap-4 mb-4">
                 <img
-                  src="/src/assets/authorPhoto.jpg"
+                  src={post.author_avatar || "/src/assets/authorPhoto.jpg"}
                   alt={post.author}
                   className="w-16 h-16 rounded-full object-cover"
                 />
@@ -209,9 +207,7 @@ function PostPage() {
 
               {/* Author Bio */}
               <p className="b2 leading-relaxed text-brown-500" >
-                I am a pet enthusiast and freelance writer who specializes in animal behavior and care. 
-                With a deep love for cats, I enjoy sharing insights on feline companionship and wellness. 
-                When I'm not writing, I spend time volunteering at my local animal shelter, helping cats find loving homes.
+                {post.author_bio || "No bio available for this author."}
               </p>
             </div>
           </aside>

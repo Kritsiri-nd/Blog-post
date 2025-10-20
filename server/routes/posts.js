@@ -53,6 +53,7 @@ router.post("/", protectUser, validatePostPost, async (req, res) => {
                 description,
                 content,
                 status_id,
+                user_id: req.user.id, // เพิ่ม user_id ของผู้สร้างบทความ
                 date: new Date().toISOString(), // เพิ่มวันที่ปัจจุบัน
                 likes_count: 0 // เริ่มต้นด้วย 0 likes
             })
@@ -160,10 +161,13 @@ router.get("/:postId", async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // ดึงข้อมูลจาก Supabase
+        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author
         const { data, error } = await supabase
             .from('posts')
-            .select('*')
+            .select(`
+                *,
+                users!inner(id, name, bio, profile_pic)
+            `)
             .eq('id', postId)
             .single();
 
@@ -173,8 +177,21 @@ router.get("/:postId", async (req, res) => {
                 "message": "Server could not find a requested post"
             });
         }
+        
+        // จัดรูปแบบข้อมูลให้เหมาะสมกับ frontend
+        const formattedData = {
+            ...data,
+            author: data.users.name,
+            author_bio: data.users.bio,
+            author_avatar: data.users.profile_pic,
+            author_id: data.users.id
+        };
+        
+        // ลบข้อมูล users object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
+        delete formattedData.users;
+        
         // ถ้าพบข้อมูล
-        res.status(200).json(data);
+        res.status(200).json(formattedData);
     } catch (error) {
         console.error('Server could not read post because database connection:', error);
         res.status(500).json({ "error": error.message });
