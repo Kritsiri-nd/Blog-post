@@ -68,7 +68,7 @@ const NotificationDropdown = ({ onClose }) => {
         ) : (
           notifications.map((notif) => (
             <Link
-              to={`/posts/${notif.post.id}`}
+              to={`/post/${notif.post.id}`}
               key={notif.id}
               onClick={onClose}
               className={`flex items-start gap-3 p-4 border-b hover:bg-gray-50 ${!notif.is_read ? 'bg-blue-50' : ''}`}

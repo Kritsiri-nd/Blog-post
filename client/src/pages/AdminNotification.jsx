@@ -36,7 +36,7 @@ const AdminNotification = () => {
   }, [token]);
 
   const handleViewArticle = (postId) => {
-    navigate(`/posts/${postId}`);
+    navigate(`/post/${postId}`);
   };
 
   const getNotificationText = (notification) => {

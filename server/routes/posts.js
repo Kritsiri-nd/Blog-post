@@ -9,6 +9,33 @@ dotenv.config();
 
 const router = express.Router();
 
+// ฟังก์ชันสำหรับส่ง Notification เมื่อมีโพสต์ใหม่จาก Admin
+const sendNewPostNotification = async (postId, authorId) => {
+    try {
+        // ดึงรายชื่อ User ทั้งหมด (ที่ไม่ใช่ admin)
+        const { data: usersToNotify, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('role', 'user');
+
+        if (userError) throw userError;
+
+        // สร้าง Notification สำหรับ User แต่ละคน
+        const notifications = usersToNotify.map(user => ({
+            user_to_notify_id: user.id,
+            actor_id: authorId,
+            type: 'new_post',
+            post_id: postId,
+        }));
+
+        if (notifications.length > 0) {
+            await supabase.from('notifications').insert(notifications);
+        }
+    } catch (error) {
+        console.error('Failed to send new post notifications:', error);
+    }
+};
+
 // POST /posts - สร้างบทความใหม่ (ต้องเป็น user)
 router.post("/", protectUser, validatePostPost, async (req, res) => {
     try {
@@ -41,26 +68,8 @@ router.post("/", protectUser, validatePostPost, async (req, res) => {
         const authorRole = req.user.role;
         const PUBLISHED_STATUS_ID = 1; // สมมติว่า status_id = 1 คือ 'Published'
 
-        if (post && status_id === PUBLISHED_STATUS_ID && authorRole === 'admin') {
-            // ดึงรายชื่อ Member ทั้งหมด (ที่ไม่ใช่ admin)
-            const { data: members, error: memberError } = await supabase
-                .from('users')
-                .select('id')
-                .eq('role', 'member');
-
-            if (memberError) throw memberError;
-
-            // สร้าง Notification สำหรับ Member แต่ละคน
-            const notifications = members.map(member => ({
-                user_to_notify_id: member.id,
-                actor_id: userId,
-                type: 'new_post',
-                post_id: post.id,
-            }));
-
-            if (notifications.length > 0) {
-                await supabase.from('notifications').insert(notifications);
-            }
+        if (post && parseInt(status_id, 10) === PUBLISHED_STATUS_ID && authorRole === 'admin') {
+            await sendNewPostNotification(post.id, userId);
         }
 
         res.status(201).json({
@@ -180,10 +189,10 @@ router.put("/:postId", protectUser, validatePutPost, async (req, res) => {
         // Destructuring เฉพาะ fields ที่ต้องการ
         const { title, content, category_id, description, image, status_id, date, likes_count } = req.body;
         
-        // ตรวจสอบว่าบทความมีอยู่หรือไม่
+        // ตรวจสอบว่าบทความมีอยู่หรือไม่ และดึงสถานะปัจจุบัน
         const { data: existingPost, error: fetchError } = await supabase
             .from('posts')
-            .select('id')
+            .select('id, status_id, user_id')
             .eq('id', postId)
             .single();
 
@@ -213,6 +222,20 @@ router.put("/:postId", protectUser, validatePutPost, async (req, res) => {
 
         if (error) {
             throw error;
+        }
+
+        // ตรวจสอบว่าสถานะถูกเปลี่ยนเป็น 'Published' หรือไม่
+        const PUBLISHED_STATUS_ID = 1;
+        const previousStatusId = existingPost.status_id;
+        const authorRole = req.user.role;
+
+        if (
+            status_id !== undefined &&
+            parseInt(status_id, 10) === PUBLISHED_STATUS_ID &&
+            previousStatusId !== PUBLISHED_STATUS_ID &&
+            authorRole === 'admin'
+        ) {
+            await sendNewPostNotification(postId, existingPost.user_id);
         }
 
         res.status(200).json({
