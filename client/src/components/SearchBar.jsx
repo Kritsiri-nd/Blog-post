@@ -48,8 +48,9 @@ const SearchBar = () => {
   const performSearch = async (keyword) => {
     setIsLoading(true);
     try {
+      console.log('Searching for:', keyword);
       const response = await axios.get(
-        'https://blog-post-project-api.vercel.app/posts',
+        'http://localhost:4001/posts',
         {
           params: {
             keyword: keyword,
@@ -57,6 +58,7 @@ const SearchBar = () => {
           }
         }
       );
+      console.log('Search response:', response.data);
       setSearchResults(response.data.posts || []);
       setShowDropdown(true);
       setSelectedIndex(-1);
@@ -179,7 +181,7 @@ const SearchBar = () => {
                   </p>
                   <div className="flex items-center space-x-2 mt-2">
                     <span className="inline-block px-2 py-1 text-xs bg-green-light text-green rounded-full">
-                      {post.category}
+                      {post.categories?.name || 'General'}
                     </span>
                     <span className="text-xs text-gray-400">
                       {formatDate(post.date)}

@@ -22,7 +22,7 @@ function ProtectedRoute({
 
   if (!isAuthenticated || userRole !== requiredRole) {
     // คืนค่า null ขณะที่ Navigate ทำการเปลี่ยนเส้นทาง
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // ผู้ใช้มีการยืนยันตัวตนและมีบทบาทที่ถูกต้อง

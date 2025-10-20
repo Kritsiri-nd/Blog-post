@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button"
 import { Menu, Bell, ChevronDown, User, RotateCcw, LogOut, Settings } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authentication.jsx";
 import NotificationDropdown from "./NotificationDropdown.jsx";
 import axios from 'axios';
@@ -14,11 +14,13 @@ import {
 
 function Navbar() {
   const { user, isAuthenticated, logout, token } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
 
   const handleLogout = () => {
+    navigate('/'); // Navigate to home page first
     logout();
     setIsMobileMenuOpen(false); // Close mobile menu after logout
   };
@@ -74,7 +76,9 @@ function Navbar() {
 
   return (
     <nav className="w-full  mx-auto flex items-center justify-between py-4 px-20 border border-[#DAD6D1]">
-      <h1 className="h2 text-black">hh<span className="text-green">.</span></h1>
+      <Link to="/" className="cursor-pointer">
+        <h1 className="h2 text-black">hh<span className="text-green">.</span></h1>
+      </Link>
 
       {/* Desktop Navigation */}
       <div className="sm:flex gap-4 hidden items-center">
@@ -106,30 +110,41 @@ function Navbar() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link to="/profile" className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/reset-password" className="flex items-center gap-2">
-                    <RotateCcw className="w-4 h-4" />
-                    Reset Password
-                  </Link>
-                </DropdownMenuItem>
-                {user?.role === 'admin' && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin" className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      Admin panel
-                    </Link>
-                  </DropdownMenuItem>
+                {user?.role === 'admin' ? (
+                  // Admin dropdown - only Admin Panel and Logout
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  // Regular user dropdown - Profile, Reset Password, and Logout
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/reset-password" className="flex items-center gap-2">
+                        <RotateCcw className="w-4 h-4" />
+                        Reset Password
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
                 )}
-                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 ">
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/authentication.jsx';
 import { 
   FileText, 
   FolderOpen, 
@@ -13,6 +14,7 @@ import {
 const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const menuItems = [
     {
@@ -61,8 +63,8 @@ const AdminSidebar = () => {
   };
 
   const handleLogout = () => {
-    // In a real app, this would clear the admin session
     navigate('/');
+    logout();
   };
 
   return (
