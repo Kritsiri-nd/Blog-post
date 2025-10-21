@@ -2,6 +2,7 @@ import * as React from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { useParams, useNavigate } from "react-router-dom";
+import { formatThaiDate } from "../lib/utils";
 import InteractionButtons from "../components/InteractionButtons";
 import CommentSection from "../components/CommentSection";
 
@@ -35,14 +36,7 @@ function PostPage() {
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+  const formatDate = (dateString) => formatThaiDate(dateString);
 
   if (isLoading) {
     return (

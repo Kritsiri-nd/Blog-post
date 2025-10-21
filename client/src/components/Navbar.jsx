@@ -99,7 +99,7 @@ function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
                   <img
-                    src={user?.profilePic || "/default-avatar.png"}
+                    src={user?.profilePic || "/src/assets/default-user.jpg"}
                     alt={user?.name}
                     className="w-8 h-8 rounded-full object-cover"
                   />
@@ -176,7 +176,7 @@ function Navbar() {
                 {/* User Profile Section */}
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200">
                   <img
-                    src={user?.profilePic || "/default-avatar.png"}
+                    src={user?.profilePic || "/src/assets/default-user.jpg"}
                     alt={user?.name || "User"}
                     className="w-12 h-12 rounded-full object-cover"
                   />

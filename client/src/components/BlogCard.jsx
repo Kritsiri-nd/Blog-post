@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { formatThaiDate } from "../lib/utils";
 
 export default function BlogCard({ image, category, title, description, author, date, id }) {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function BlogCard({ image, category, title, description, author, 
         <div className="flex items-center b2">
           <span style={{ color: 'var(--brown-500)' }}>{author}</span>
           <span className="mx-2" style={{ color: 'var(--brown-300)' }}>|</span>
-          <span style={{ color: 'var(--brown-400)' }}>{date}</span>
+          <span style={{ color: 'var(--brown-400)' }}>{formatThaiDate(date)}</span>
         </div>
       </div>
     </div>

@@ -74,7 +74,7 @@ const NotificationDropdown = ({ onClose }) => {
               className={`flex items-start gap-3 p-4 border-b hover:bg-gray-50 ${!notif.is_read ? 'bg-blue-50' : ''}`}
             >
               <img
-                src={notif.actor.profile_pic || '/default-avatar.png'}
+                src={notif.actor.profile_pic || '/src/assets/default-user.jpg'}
                 alt={notif.actor.name}
                 className="w-10 h-10 rounded-full object-cover"
               />
