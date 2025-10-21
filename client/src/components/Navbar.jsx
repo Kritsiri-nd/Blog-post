@@ -33,7 +33,7 @@ function Navbar() {
     const fetchUnreadStatus = async () => {
       if (!user) return;
       try {
-        const response = await axios.get('http://localhost:4001/notifications', {
+        const response = await axios.get('/notifications', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const unread = response.data.notifications.some(n => !n.is_read);

@@ -24,7 +24,7 @@ function PostPage() {
     
     try {
       const response = await axios.get(
-        `http://localhost:4001/posts/${postId}`
+        `/posts/${postId}`
       );
       setPost(response.data);
     } catch (error) {

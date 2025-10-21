@@ -53,8 +53,8 @@ const SearchBar = () => {
       console.log('Searching for:', keyword);
       // ใช้ API endpoint ที่ถูกต้องตาม role
       const apiUrl = (user?.role === 'admin') 
-        ? 'http://localhost:4001/posts/admin' 
-        : 'http://localhost:4001/posts';
+        ? '/posts/admin' 
+        : '/posts';
       
       const response = await axios.get(apiUrl, {
         params: {

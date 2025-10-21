@@ -97,7 +97,7 @@ const AdminProfile = () => {
       }
 
       const response = await axios.put(
-        'http://localhost:4001/auth/update-profile',
+        '/auth/update-profile',
         updateData,
         {
           headers: {

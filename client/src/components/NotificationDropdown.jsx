@@ -12,7 +12,7 @@ const NotificationDropdown = ({ onClose }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:4001/notifications', {
+        const response = await axios.get('/notifications', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotifications(response.data.notifications || []);
@@ -23,9 +23,9 @@ const NotificationDropdown = ({ onClose }) => {
       }
     };
 
-    const markAllAsRead = async () => {
+      const markAllAsRead = async () => {
         try {
-          await axios.put('http://localhost:4001/notifications/read-all', {}, {
+          await axios.put('/notifications/read-all', {}, {
             headers: { Authorization: `Bearer ${token}` },
           });
         } catch (error) {
