@@ -1,8 +1,8 @@
-import authorImage from '../assets/authorPhoto.jpg'
+import authorImage from '../assets/myPhoto.jpg'
 
 function HeroSection() {
   return (
-    <section className="flex flex-col sm:flex-row items-center justify-between gap-10 px-6 sm:px-10 py-5 w-full mx-auto max-w-[1200px]">
+    <section className="flex flex-col sm:flex-row items-center justify-between gap-10 px-6 sm:px-10 py-5 w-full mx-auto max-w-[1200px] mt-4">
 
       {/* Left Text Section */}
       <div className="flex flex-col justify-center sm:text-right text-center sm:max-w-[380px] w-full">

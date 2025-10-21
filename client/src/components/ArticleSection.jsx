@@ -10,7 +10,7 @@ import {
 } from "./ui/select";
 import BlogCard from "./BlogCard";
 import SearchBar from "./SearchBar";
-import CoffeeLoading from "./CoffeeLoading"; 
+import CoffeeLoading from "./CoffeeLoading";
 import { useAuth } from "../context/authentication.jsx";
 
 function ArticleSection() {
@@ -20,8 +20,8 @@ function ArticleSection() {
   const [posts, setPosts] = React.useState([]);
   const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
-  const [isLoading, setIsLoading] = React.useState(true); // ✅ เริ่มต้นเป็น true เพื่อโชว์ตอนเปิดหน้า
-  const [isFetchingMore, setIsFetchingMore] = React.useState(false); 
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isFetchingMore, setIsFetchingMore] = React.useState(false);
 
   // ดึง categories ครั้งแรก
   React.useEffect(() => {
@@ -45,31 +45,27 @@ function ArticleSection() {
   };
 
   const fetchPosts = async () => {
-    // ✅ ถ้าเป็นหน้าแรก แสดง loader เต็มหน้า, ถ้า load more แสดง loader เล็ก
     if (page === 1) setIsLoading(true);
     else setIsFetchingMore(true);
-    
+
     try {
       const categoryParam = category !== "All" ? category : "";
       const apiUrl = user?.role === "admin" ? "/posts/admin" : "/posts";
 
+
       const response = await axios.get(apiUrl, {
-        params: {
-          page: page,
-          limit: 6,
-          category: categoryParam
-        },
+        params: { page, limit: 6, category: categoryParam },
         headers: user?.role === "admin"
           ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-          : {}
+          : {},
       });
 
       if (page === 1) {
         setPosts(response.data.posts || []);
       } else {
         setPosts((prev) => {
-          const existingIds = new Set(prev.map(p => p.id));
-          const newPosts = (response.data.posts || []).filter(p => !existingIds.has(p.id));
+          const existingIds = new Set(prev.map((p) => p.id));
+          const newPosts = (response.data.posts || []).filter((p) => !existingIds.has(p.id));
           return [...prev, ...newPosts];
         });
       }
@@ -85,7 +81,7 @@ function ArticleSection() {
     }
   };
 
-  // ✅ รีเซ็ตตอนเปลี่ยน category
+  // รีเซ็ตเมื่อเปลี่ยนหมวดหมู่
   React.useEffect(() => {
     setPosts([]);
     setPage(1);
@@ -93,35 +89,22 @@ function ArticleSection() {
     setIsLoading(true); // เพิ่มเพื่อให้แสดง CoffeeLoading ตอนเปลี่ยนหมวด
   }, [category]);
 
-  const handleLoadMore = () => {
-    setPage((prev) => prev + 1);
-  };
-
-  // ✅ CoffeeLoading ตอนโหลดครั้งแรก
-  if (isLoading && page === 1) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <CoffeeLoading text="กำลังชงกาแฟของคุณ..." />
-      </div>
-    );
-  }
+  const handleLoadMore = () => setPage((prev) => prev + 1);
 
   return (
     <section className="w-full mx-auto max-w-[1200px] px-10 py-5">
       <div>
         <h1 className="h3">Latest articles</h1>
         <div className="bg-brown-200 mt-2 px-10 rounded-2xl">
-
           {/* Desktop: Category buttons + Search */}
           <div className="sm:flex hidden gap-4 py-5 px-10">
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                className={`px-4 py-2 rounded-full font-medium text-sm transition-colors 
-                  ${
-                    category === cat.name
-                      ? "bg-brown-500 text-white cursor-not-allowed"
-                      : "bg-brown-300 hover:bg-brown-400"
+                className={`px-4 py-2 rounded-full font-medium text-sm transition-colors
+                  ${category === cat.name
+                    ? "bg-brown-500 text-white cursor-not-allowed"
+                    : "bg-brown-300 hover:bg-brown-400"
                   }`}
                 disabled={category === cat.name}
                 onClick={() => setCategory(cat.name)}
@@ -129,7 +112,6 @@ function ArticleSection() {
                 {cat.name}
               </button>
             ))}
-
             <div className="ml-auto">
               <SearchBar />
             </div>
@@ -140,7 +122,7 @@ function ArticleSection() {
             <SearchBar />
             <div className="relative flex">
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-full bg-white rounded-lg p-2 b1 text-brown-600 border border-brown-300 focus:outline-none focus:ring-2 focus:ring-brown-500">
+                <SelectTrigger className="w-full bg-white rounded-lg py-2 px-4b1 text-brown-600 border border-brown-300 focus:outline-none focus:ring-2 focus:ring-green">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,7 +141,12 @@ function ArticleSection() {
       </div>
 
       {/* ✅ Posts Grid */}
-      {posts.length === 0 && !isLoading ? (
+      {isLoading && page === 1 ? (
+        // ☕ แสดงตอนโหลดด้วย CoffeeLoading
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <CoffeeLoading text="กำลังชงกาแฟของคุณ..." />
+        </div>
+      ) : posts.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
           ไม่มีบทความในหมวดนี้ ☕
         </div>
@@ -189,7 +176,7 @@ function ArticleSection() {
       )}
 
       {/* ✅ View More */}
-      {!isFetchingMore && hasMore && (
+      {!isFetchingMore && hasMore && posts.length > 0 && (
         <div className="text-center mt-8">
           <button
             onClick={handleLoadMore}

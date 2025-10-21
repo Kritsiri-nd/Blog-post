@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import HeroSection from "./components/HeroSection";
 import ArticleSection from "./components/ArticleSection";
 import AdminLayout from "./components/AdminLayout";
-
+import ScrollToTop from "./components/ScrollToTop";
 // Pages
 import PostPage from "./pages/PostPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -34,6 +34,8 @@ function AppRoutes() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       {/* เส้นทางสาธารณะที่ทุกคนเข้าถึงได้ */}
       <Route path="/" element={
@@ -256,6 +258,7 @@ function AppRoutes() {
         </>
       } />
     </Routes>
+    </>
   );
 }
 
