@@ -17,17 +17,12 @@ function CommentSection({ postId }) {
   React.useEffect(() => {
     const fetchComments = async () => {
       try {
-<<<<<<< HEAD
-        const response = await axios.get(`/posts/${postId}/comments`);
-        setComments(response.data.comments || []);
-=======
         const response = await axios.get(`http://localhost:4001/posts/${postId}/comments`);
         const commentsWithAvatars = (response.data.comments || []).map(comment => ({
           ...comment,
           avatar: comment.author_avatar || "/src/assets/default-user.jpg"
         }));
         setComments(commentsWithAvatars);
->>>>>>> ae047e8 (feat: add default user avatar and format date in BlogCard and PostPage)
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
