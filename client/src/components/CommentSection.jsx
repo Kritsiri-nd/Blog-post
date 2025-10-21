@@ -17,7 +17,7 @@ function CommentSection({ postId }) {
   React.useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`http://localhost:4001/posts/${postId}/comments`);
+        const response = await axios.get(`/posts/${postId}/comments`);
         setComments(response.data.comments || []);
       } catch (error) {
         console.error('Error fetching comments:', error);
@@ -40,7 +40,7 @@ function CommentSection({ postId }) {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:4001/posts/${postId}/comments`, {
+      const response = await axios.post(`/posts/${postId}/comments`, {
         content: newComment.trim()
       }, {
         headers: {

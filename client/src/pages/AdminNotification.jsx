@@ -17,7 +17,7 @@ const AdminNotification = () => {
         return;
       }
       try {
-        const response = await axios.get('http://localhost:4001/notifications', {
+        const response = await axios.get('/notifications', {
           headers: { Authorization: `Bearer ${token}` },
         });
         // Filter for notifications relevant to admin (likes/comments on their posts)

@@ -22,7 +22,7 @@ function InteractionButtons({ likes, postId }) {
       
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:4001/posts/${postId}/like-status`, {
+        const response = await axios.get(`/posts/${postId}/like-status`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -46,7 +46,7 @@ function InteractionButtons({ likes, postId }) {
       const token = localStorage.getItem('token');
       
       // ส่ง POST request เดียว - server จะจัดการ toggle ให้
-      const response = await axios.post(`http://localhost:4001/posts/${postId}/like`, {}, {
+      const response = await axios.post(`/posts/${postId}/like`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

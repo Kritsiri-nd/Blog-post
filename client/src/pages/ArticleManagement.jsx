@@ -22,7 +22,7 @@ const ArticleManagement = () => {
   const fetchArticles = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://localhost:4001/posts/admin', {
+      const response = await axios.get('/posts/admin', {
         params: {
           limit: 100 // Get all articles for admin management
         },
@@ -56,7 +56,7 @@ const ArticleManagement = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/categories');
+      const response = await axios.get('/categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -115,7 +115,7 @@ const ArticleManagement = () => {
   const handleDeleteConfirm = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:4001/posts/${deleteModal.articleId}`, {
+      await axios.delete(`/posts/${deleteModal.articleId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
