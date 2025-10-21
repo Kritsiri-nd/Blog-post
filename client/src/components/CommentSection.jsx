@@ -17,10 +17,19 @@ function CommentSection({ postId }) {
   React.useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`http://localhost:4001/posts/${postId}/comments`);
+        const response = await axios.get(`/posts/${postId}/comments`);
         const commentsWithAvatars = (response.data.comments || []).map(comment => ({
           ...comment,
-          avatar: comment.author_avatar || "/src/assets/default-user.jpg"
+          author: comment.author_name,
+          avatar: comment.author_avatar || "/src/assets/default-user.jpg",
+          content: comment.content,
+          date: new Date(comment.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
         }));
         setComments(commentsWithAvatars);
       } catch (error) {
@@ -132,8 +141,8 @@ function CommentSection({ postId }) {
             {/* Comment Content */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)' }}>
+                <div className="flex items-center gap-3">
+                  <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)', fontSize: '16px', fontWeight: '600' }}>
                     {comment.author}
                   </h4>
                   <span className="b3" style={{ color: 'var(--brown-400)' }}>

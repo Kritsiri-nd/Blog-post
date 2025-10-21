@@ -13,27 +13,47 @@ import BlogCard from "./BlogCard";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../context/authentication.jsx";
 
-const categories = ["Highlight", "Cat", "Inspiration", "General"];
-
 function ArticleSection() {
   const { user, isAuthenticated } = useAuth();
-  const [category, setCategory] = React.useState("Highlight");
+  const [categories, setCategories] = React.useState([]);
+  const [category, setCategory] = React.useState("");
   const [posts, setPosts] = React.useState([]);
   const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  // ดึง categories จากฐานข้อมูลเมื่อ component โหลด
+  React.useEffect(() => {
+    fetchCategories();
+  }, []);
 
   // ฟังก์ชันดึงข้อมูลที่จะถูกเรียกเมื่อ page หรือ category เปลี่ยนแปลง
   React.useEffect(() => {
     fetchPosts();
   }, [page, category]);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/categories');
+      // เพิ่ม "All" category ที่ด้านหน้า
+      const allCategories = [
+        { id: 'all', name: 'All' },
+        ...response.data
+      ];
+      setCategories(allCategories);
+      // ตั้งค่า "All" เป็น default
+      setCategory('All');
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   const fetchPosts = async () => {
     setIsLoading(true);
     
     try {
-      // ใช้ category parameter เฉพาะเมื่อไม่ใช่ Highlight
-      const categoryParam = category === "Highlight" ? "" : category;
+      // ใช้ category parameter เฉพาะเมื่อไม่ใช่ "All"
+      const categoryParam = (category && category !== 'All') ? category : "";
       
       // ใช้ API endpoint ที่ถูกต้องตาม role
       const apiUrl = (user?.role === 'admin') 
@@ -95,17 +115,17 @@ function ArticleSection() {
         <div className="sm:flex hidden gap-4 py-10 px-10">
           {categories.map((cat) => (
             <button
-              key={cat}
+              key={cat.id}
               className={`px-4 py-2 rounded font-medium text-sm transition-colors
                 ${
-                  category === cat
+                  category === cat.name
                     ? "bg-brown-500 text-white cursor-not-allowed"
                     : "bg-brown-300 hover:bg-brown-400"
                 }`}
-              disabled={category === cat}
-              onClick={() => setCategory(cat)}
+              disabled={category === cat.name}
+              onClick={() => setCategory(cat.name)}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
 
@@ -128,8 +148,8 @@ function ArticleSection() {
               <SelectContent>
                 <SelectGroup>
                   {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -151,6 +171,7 @@ function ArticleSection() {
             title={post.title}
             description={post.description}
             author={post.author}
+            author_avatar={post.author_avatar}
             date={post.date}
           />
         ))}
