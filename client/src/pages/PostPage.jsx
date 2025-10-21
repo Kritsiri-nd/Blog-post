@@ -22,7 +22,7 @@ function PostPage() {
   const fetchPost = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await axios.get(
         `/posts/${postId}`
@@ -59,9 +59,9 @@ function PostPage() {
             <button
               onClick={() => navigate('/')}
               className="px-6 py-2 rounded transition-colors"
-              style={{ 
-                backgroundColor: 'var(--brown-500)', 
-                color: 'var(--white)' 
+              style={{
+                backgroundColor: 'var(--brown-500)',
+                color: 'var(--white)'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--brown-600)'}
               onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--brown-500)'}
@@ -83,9 +83,9 @@ function PostPage() {
             <button
               onClick={() => navigate('/')}
               className="px-6 py-2 rounded transition-colors"
-              style={{ 
-                backgroundColor: 'var(--brown-500)', 
-                color: 'var(--white)' 
+              style={{
+                backgroundColor: 'var(--brown-500)',
+                color: 'var(--white)'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--brown-600)'}
               onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--brown-500)'}
@@ -116,9 +116,9 @@ function PostPage() {
           <article className="flex-1 lg:max-w-none">
             {/* Category and Date */}
             <div className="flex items-center gap-4 mb-4">
-              <span 
+              <span
                 className="rounded-full px-3 py-1 b2 font-semibold bg-green-light text-green"
-                
+
               >
                 {post.category}
               </span>
@@ -144,10 +144,9 @@ function PostPage() {
             </div>
 
             {/* Mobile Author Card - Only visible on mobile */}
-            <div className="lg:hidden bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="lg:hidden bg-white rounded-lg shadow-sm p-6 mb-8">
               {/* Author Section */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">Author</div>
                 <div className="flex items-center gap-4 mb-4">
                   <img
                     src={post.author_avatar || "/src/assets/authorPhoto.jpg"}
@@ -155,10 +154,11 @@ function PostPage() {
                     className="w-16 h-16 rounded-full object-cover"
                   />
                   <div>
+                    <h3 className="text-sm text-gray-500 ">Author</h3>
                     <h4 className="text-lg font-semibold text-gray-800">{post.author}</h4>
                   </div>
                 </div>
-                
+                <hr className="w-full border-brown-300 mb-3" />
                 {/* Author Bio */}
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {post.author_bio || "No bio available for this author."}
@@ -167,7 +167,7 @@ function PostPage() {
             </div>
 
             {/* Mobile Interaction Buttons - Only visible on mobile */}
-            <div className="lg:hidden bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="lg:hidden bg-white rounded-lg shadow-sm p-6 mb-8">
               <InteractionButtons likes={post.likes} postId={post.id} />
             </div>
 
@@ -176,48 +176,29 @@ function PostPage() {
           </article>
 
           {/* Desktop Author Sidebar - Only visible on desktop */}
-          <aside className="hidden lg:block lg:w-80 lg:flex-shrink-0">
-            <div 
-              className="rounded-lg p-6 bg-brown-200 sticky-sidebar"
-              style={{ 
-                position: 'sticky', 
-                top: '1rem',
-                alignSelf: 'flex-start'
-              }}
+          <aside className="hidden lg:block lg:w-80 lg:flex-shrink-0 ">
+            <div
+              className="bg-white rounded-xl p-6 sticky top-10 text-center shadow-sm"
             >
-              <h3 className="h4 mb-4 text-brown-600">Author</h3>
-              
               {/* Author Photo */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex flex-row items-center gap-4">
                 <img
                   src={post.author_avatar || "/src/assets/authorPhoto.jpg"}
                   alt={post.author}
-                  className="w-16 h-16 rounded-full object-cover"
+                  className="w-20 h-20 rounded-full object-cover mb-3"
                 />
-                <div>
-                  <h4 className="h4 text-brown-600" >{post.author}</h4>
+                <div className="flex flex-col text-left">
+                  <h3 className="text-[14px] text-brown-600 ">Author</h3>
+                  <h4 className="h3 text-brown-600" >{post.author}</h4>
                 </div>
               </div>
-
+              <hr className="w-full border-brown-300 mb-3" />
               {/* Author Bio */}
-              <p className="b2 leading-relaxed text-brown-500" >
+              <p className="b1 leading-relaxed text-brown-500" >
                 {post.author_bio || "No bio available for this author."}
               </p>
             </div>
           </aside>
-        </div>
-
-        {/* Back Button */}
-        <div className="mt-12 text-center">
-          <button
-            onClick={() => navigate('/')}
-            className="px-8 py-3 rounded-lg transition-colors b1 bg-brown-500 text-white"
-            
-            onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--brown-600)'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--brown-500)'}
-          >
-            Back to Articles
-          </button>
         </div>
       </div>
     </div>

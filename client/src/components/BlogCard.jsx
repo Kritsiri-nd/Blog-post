@@ -9,7 +9,7 @@ export default function BlogCard({ image, category, title, description, author, 
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       <button 
         onClick={handleClick}
         className="relative h-[212px] sm:h-[260px] w-full cursor-pointer"
@@ -20,7 +20,7 @@ export default function BlogCard({ image, category, title, description, author, 
           alt={title}
         />
       </button>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-grow">
         <div className="flex">
           <span 
             className="rounded-full px-3 py-1 b2 font-semibold mb-2"

@@ -99,13 +99,7 @@ function CommentSection({ postId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="What are your thoughts?"
-            className="w-full p-4 border rounded-lg resize-none"
-            style={{
-              borderColor: 'var(--brown-300)',
-              backgroundColor: 'var(--white)',
-              color: 'var(--brown-600)',
-              minHeight: '100px'
-            }}
+            className="w-full p-4 border rounded-lg resize-none min-h-[100px] text-brown-400 bg-white border-brown-300"
             rows={4}
           />
         </div>
