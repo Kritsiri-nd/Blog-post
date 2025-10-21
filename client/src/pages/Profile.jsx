@@ -289,7 +289,7 @@ const Profile = () => {
 
                         {/* Main Content */}
                         <div className="flex-1">
-                            <div className="bg-brown-200 rounded-lg shadow-sm p-8">
+                            <div className="bg-white rounded-lg shadow-sm p-8">
                                 {/* Profile Picture Section */}
                                 <div className="flex items-center gap-6 mb-8">
                                     <img
