@@ -1,16 +1,16 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 
 function LoginModal({ isOpen, onClose }) {
+  const navigate = useNavigate();
   if (!isOpen) return null;
 
   const handleCreateAccount = () => {
-    // In a real app, this would redirect to signup page
-    alert("Create Account functionality would be implemented here");
+    navigate("/signup");
   };
 
   const handleLogin = () => {
-    // In a real app, this would redirect to login page
-    alert("Login functionality would be implemented here");
+    navigate("/signin");
   };
 
   return (
