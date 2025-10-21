@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const response = await axios.get('http://localhost:4001/auth/get-user', {
+        const response = await axios.get('/auth/get-user', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:4001/auth/login', {
+      const response = await axios.post('/auth/login', {
         email,
         password
       });
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
 
       // Fetch user data
-      const userResponse = await axios.get('http://localhost:4001/auth/get-user', {
+      const userResponse = await axios.get('/auth/get-user', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:4001/auth/register', userData);
+      const response = await axios.post('/auth/register', userData);
       
       setUser(null); // User needs to verify email
       return { success: true, user: response.data.user };
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:4001/auth/update-profile', profileData, {
+      const response = await axios.put('/auth/update-profile', profileData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:4001/auth/reset-password', {
+      const response = await axios.put('/auth/reset-password', {
         oldPassword,
         newPassword
       }, {
@@ -144,7 +144,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get('http://localhost:4001/auth/get-user', {
+      const response = await axios.get('/auth/get-user', {
         headers: {
           Authorization: `Bearer ${token}`
         }

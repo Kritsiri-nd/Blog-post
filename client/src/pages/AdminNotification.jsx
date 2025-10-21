@@ -17,7 +17,7 @@ const AdminNotification = () => {
         return;
       }
       try {
-        const response = await axios.get('http://localhost:4001/notifications', {
+        const response = await axios.get('/notifications', {
           headers: { Authorization: `Bearer ${token}` },
         });
         // Filter for notifications relevant to admin (likes/comments on their posts)
@@ -70,7 +70,7 @@ const AdminNotification = () => {
             }`}>
               <div className="flex items-start gap-4">
                 <img
-                  src={notification.actor.profile_pic || '/default-avatar.png'}
+                  src={notification.actor.profile_pic || '/src/assets/default-user.jpg'}
                   alt={notification.actor.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

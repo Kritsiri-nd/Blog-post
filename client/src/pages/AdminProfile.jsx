@@ -97,7 +97,7 @@ const AdminProfile = () => {
       }
 
       const response = await axios.put(
-        'http://localhost:4001/auth/update-profile',
+        '/auth/update-profile',
         updateData,
         {
           headers: {
@@ -145,7 +145,7 @@ const AdminProfile = () => {
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
             <img
-              src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || "/src/assets/authorPhoto.jpg")}
+              src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || "/src/assets/default-user.jpg")}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover"
             />

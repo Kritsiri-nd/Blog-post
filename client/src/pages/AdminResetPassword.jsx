@@ -80,7 +80,7 @@ const AdminResetPassword = () => {
       }
 
       await axios.post(
-        'http://localhost:4001/auth/reset-password',
+        '/auth/reset-password',
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword

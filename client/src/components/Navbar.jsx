@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
+import Lottie from "lottie-react";
+import coffeeNavbar from "../assets/coffee-navbar.json";
 
 function Navbar() {
   const { user, isAuthenticated, logout, token } = useAuth();
@@ -33,7 +35,7 @@ function Navbar() {
     const fetchUnreadStatus = async () => {
       if (!user) return;
       try {
-        const response = await axios.get('http://localhost:4001/notifications', {
+        const response = await axios.get('/notifications', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const unread = response.data.notifications.some(n => !n.is_read);
@@ -52,7 +54,7 @@ function Navbar() {
   const handleNotificationClick = () => {
     setShowNotifications(prev => !prev);
     if (hasUnread) {
-        setHasUnread(false); // Optimistically update UI
+      setHasUnread(false); // Optimistically update UI
     }
   };
 
@@ -75,9 +77,17 @@ function Navbar() {
   }, [isMobileMenuOpen, showNotifications]);
 
   return (
-    <nav className="w-full  mx-auto flex items-center justify-between py-4 px-20 border border-[#DAD6D1]">
-      <Link to="/" className="cursor-pointer">
-        <h1 className="h2 text-black">hh<span className="text-green">.</span></h1>
+    <nav className="w-full  mx-auto flex items-center justify-between py-2 sm:px-20 px-10 border border-[#DAD6D1]">
+      <Link to="/" className="flex items-center sm:gap-2 gap-1 cursor-pointer transition-transform hover:scale-[1.02]">
+        <div className="sm:w-20 sm:h-20 w-15 h-15 flex-shrink-0">
+          <Lottie
+            animationData={coffeeNavbar}
+            loop={true}
+            autoplay={true}
+            speed={1.1}
+          />
+        </div>
+        <h1 className="h3 text-black font-semibold tracking-tight transition-transform hover:translate-x-1">Kritsiri<span className="text-green">.</span>Blog</h1>
       </Link>
 
       {/* Desktop Navigation */}
@@ -99,7 +109,7 @@ function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
                   <img
-                    src={user?.profilePic || "/default-avatar.png"}
+                    src={user?.profilePic || "/src/assets/default-user.jpg"}
                     alt={user?.name}
                     className="w-8 h-8 rounded-full object-cover"
                   />
@@ -114,7 +124,7 @@ function Navbar() {
                   // Admin dropdown - only Admin Panel and Logout
                   <>
                     <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center gap-2">
+                      <Link to="/admin/articles" className="flex items-center gap-2">
                         <Settings className="w-4 h-4" />
                         Admin Panel
                       </Link>
@@ -176,7 +186,7 @@ function Navbar() {
                 {/* User Profile Section */}
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200">
                   <img
-                    src={user?.profilePic || "/default-avatar.png"}
+                    src={user?.profilePic || "/src/assets/default-user.jpg"}
                     alt={user?.name || "User"}
                     className="w-12 h-12 rounded-full object-cover"
                   />
@@ -185,8 +195,8 @@ function Navbar() {
                   </div>
                   <div className="relative notification-container">
                     <button onClick={handleNotificationClick} className="focus:outline-none">
-                        <Bell className="w-6 h-6 text-gray-600" />
-                        {hasUnread && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>}
+                      <Bell className="w-6 h-6 text-gray-600" />
+                      {hasUnread && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>}
                     </button>
                     {showNotifications && <NotificationDropdown onClose={() => setShowNotifications(false)} />}
                   </div>
@@ -216,7 +226,7 @@ function Navbar() {
                     {/* Admin Panel Link - Only for admin users */}
                     {user?.role === 'admin' && (
                       <Link
-                        to="/admin"
+                        to="/admin/articles"
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                       >

@@ -53,8 +53,8 @@ const SearchBar = () => {
       console.log('Searching for:', keyword);
       // ใช้ API endpoint ที่ถูกต้องตาม role
       const apiUrl = (user?.role === 'admin') 
-        ? 'http://localhost:4001/posts/admin' 
-        : 'http://localhost:4001/posts';
+        ? '/posts/admin' 
+        : '/posts';
       
       const response = await axios.get(apiUrl, {
         params: {
@@ -143,7 +143,7 @@ const SearchBar = () => {
             }
           }}
           placeholder="Search"
-          className="w-full max-w-[350px] px-4 py-2 pl-10 pr-4 text-sm border border-brown-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent bg-white"
+          className="w-full lg:max-w-[350px] px-4 py-2 pl-10 pr-4 text-sm border border-brown-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent bg-white"
         />
         <img
           src={SearchIcon}
@@ -187,8 +187,8 @@ const SearchBar = () => {
                     {post.description}
                   </p>
                   <div className="flex items-center space-x-2 mt-2">
-                    <span className="inline-block px-2 py-1 text-xs bg-green-light text-green rounded-full">
-                      {post.categories?.name || 'General'}
+                    <span className="inline-block px-2 py-1 text-xs bg-green-light text-green rounded-full w-full text-center">
+                      {post.categories?.name}
                     </span>
                     <span className="text-xs text-gray-400">
                       {formatDate(post.date)}

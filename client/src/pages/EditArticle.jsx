@@ -29,7 +29,7 @@ const EditArticle = () => {
     const fetchArticle = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:4001/posts/admin/${postId}`, {
+        const response = await axios.get(`/posts/admin/${postId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -54,7 +54,7 @@ const EditArticle = () => {
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4001/categories');
+        const response = await axios.get('/categories');
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -177,7 +177,7 @@ const EditArticle = () => {
         status_id: status_id
       };
 
-      await axios.put(`http://localhost:4001/posts/${postId}`, updateData, {
+      await axios.put(`/posts/${postId}`, updateData, {
         headers: {
           Authorization: `Bearer ${token}`
         }

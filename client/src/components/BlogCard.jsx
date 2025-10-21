@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { formatThaiDate } from "../lib/utils";
 
-export default function BlogCard({ image, category, title, description, author, date, id }) {
+export default function BlogCard({ image, category, title, description, author, author_avatar, date, id }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -8,7 +9,7 @@ export default function BlogCard({ image, category, title, description, author, 
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       <button 
         onClick={handleClick}
         className="relative h-[212px] sm:h-[260px] w-full cursor-pointer"
@@ -19,7 +20,7 @@ export default function BlogCard({ image, category, title, description, author, 
           alt={title}
         />
       </button>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-grow">
         <div className="flex">
           <span 
             className="rounded-full px-3 py-1 b2 font-semibold mb-2"
@@ -42,10 +43,17 @@ export default function BlogCard({ image, category, title, description, author, 
         >
           {description}
         </p>
-        <div className="flex items-center b2">
-          <span style={{ color: 'var(--brown-500)' }}>{author}</span>
-          <span className="mx-2" style={{ color: 'var(--brown-300)' }}>|</span>
-          <span style={{ color: 'var(--brown-400)' }}>{date}</span>
+        <div className="flex items-center gap-3 b2">
+          <img 
+            src={author_avatar || "/src/assets/default-user.jpg"} 
+            alt={author}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <div className="flex items-center gap-2">
+            <span style={{ color: 'var(--brown-500)' }}>{author}</span>
+            <span style={{ color: 'var(--brown-300)' }}>|</span>
+            <span style={{ color: 'var(--brown-400)' }}>{formatThaiDate(date)}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ const CreateArticle = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4001/categories');
+      const response = await axios.get('/categories');
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -162,7 +162,7 @@ const CreateArticle = () => {
         status_id: status_id
       };
 
-      await axios.post('http://localhost:4001/posts', postData, {
+      await axios.post('/posts', postData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
