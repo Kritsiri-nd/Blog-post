@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation,Link } from 'react-router-dom';
 import { useAuth } from '../context/authentication.jsx';
 import { 
   FileText, 
@@ -10,6 +10,8 @@ import {
   ExternalLink, 
   LogOut 
 } from 'lucide-react';
+import Lottie from "lottie-react";
+import coffeeNavbar from "../assets/coffee-navbar.json";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
@@ -72,8 +74,17 @@ const AdminSidebar = () => {
       {/* Logo and Brand */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl font-bold text-gray-800">hh.</span>
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        <Link to="/" className="flex items-center gap-2  cursor-pointer transition-transform hover:scale-[1.02]">
+        <div className="w-20 :h-20 flex-shrink-0">
+          <Lottie
+            animationData={coffeeNavbar}
+            loop={true}
+            autoplay={true}
+            speed={1.1}
+          />
+        </div>
+        <h1 className="h3 text-black font-semibold tracking-tight transition-transform hover:translate-x-1">Kritsiri<span className="text-green">.</span>Blog</h1>
+      </Link>
         </div>
         <p className="text-sm text-orange-400 font-medium">Admin panel</p>
       </div>
@@ -111,7 +122,7 @@ const AdminSidebar = () => {
               className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
-              hh. website
+              Kritsiri .N
             </button>
           </li>
           <li>

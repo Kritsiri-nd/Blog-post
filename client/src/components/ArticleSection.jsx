@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import axios from "axios";
 import {
@@ -11,60 +10,70 @@ import {
 } from "./ui/select";
 import BlogCard from "./BlogCard";
 import SearchBar from "./SearchBar";
+import CoffeeLoading from "./CoffeeLoading"; 
 import { useAuth } from "../context/authentication.jsx";
 
-const categories = ["Highlight", "Cat", "Inspiration", "General"];
-
 function ArticleSection() {
-  const { user, isAuthenticated } = useAuth();
-  const [category, setCategory] = React.useState("Highlight");
+  const { user } = useAuth();
+  const [categories, setCategories] = React.useState([]);
+  const [category, setCategory] = React.useState("All");
   const [posts, setPosts] = React.useState([]);
   const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true); // ✅ เริ่มต้นเป็น true เพื่อโชว์ตอนเปิดหน้า
+  const [isFetchingMore, setIsFetchingMore] = React.useState(false); 
 
-  // ฟังก์ชันดึงข้อมูลที่จะถูกเรียกเมื่อ page หรือ category เปลี่ยนแปลง
+  // ดึง categories ครั้งแรก
+  React.useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // โหลดโพสต์ทุกครั้งที่ page หรือ category เปลี่ยน
   React.useEffect(() => {
     fetchPosts();
   }, [page, category]);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/categories");
+      const allCategories = [{ id: "all", name: "All" }, ...response.data];
+      setCategories(allCategories);
+      setCategory("All");
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   const fetchPosts = async () => {
-    setIsLoading(true);
+    // ✅ ถ้าเป็นหน้าแรก แสดง loader เต็มหน้า, ถ้า load more แสดง loader เล็ก
+    if (page === 1) setIsLoading(true);
+    else setIsFetchingMore(true);
     
     try {
-      // ใช้ category parameter เฉพาะเมื่อไม่ใช่ Highlight
-      const categoryParam = category === "Highlight" ? "" : category;
-      
-      // ใช้ API endpoint ที่ถูกต้องตาม role
-      const apiUrl = (user?.role === 'admin') 
-        ? "/posts/admin" 
-        : "/posts";
-      
+      const categoryParam = category !== "All" ? category : "";
+      const apiUrl = user?.role === "admin" ? "/posts/admin" : "/posts";
+
       const response = await axios.get(apiUrl, {
         params: {
           page: page,
           limit: 6,
           category: categoryParam
         },
-        headers: (user?.role === 'admin') ? {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        } : {}
+        headers: user?.role === "admin"
+          ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          : {}
       });
-      
-      // ตรวจสอบว่าเป็นหน้าแรกหรือไม่
+
       if (page === 1) {
-        // ถ้าเป็นหน้าแรก ให้แทนที่ posts ทั้งหมด
-        setPosts(response.data.posts);
+        setPosts(response.data.posts || []);
       } else {
-        // ถ้าไม่ใช่หน้าแรก ให้รวมกับ posts เดิม และกรอง ID ที่ซ้ำ
-        setPosts((prevPosts) => {
-          const existingIds = new Set(prevPosts.map(post => post.id));
-          const newPosts = response.data.posts.filter(post => !existingIds.has(post.id));
-          return [...prevPosts, ...newPosts];
+        setPosts((prev) => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newPosts = (response.data.posts || []).filter(p => !existingIds.has(p.id));
+          return [...prev, ...newPosts];
         });
       }
-      
-      // ตรวจสอบว่าได้ข้อมูลหน้าสุดท้ายแล้วหรือยัง
+
       if (response.data.currentPage >= response.data.totalPages) {
         setHasMore(false);
       }
@@ -72,99 +81,121 @@ function ArticleSection() {
       console.error("Error fetching posts:", error);
     } finally {
       setIsLoading(false);
+      setIsFetchingMore(false);
     }
   };
 
-  // รีเซ็ตข้อมูลเมื่อเปลี่ยน category
+  // ✅ รีเซ็ตตอนเปลี่ยน category
   React.useEffect(() => {
     setPosts([]);
     setPage(1);
     setHasMore(true);
+    setIsLoading(true); // เพิ่มเพื่อให้แสดง CoffeeLoading ตอนเปลี่ยนหมวด
   }, [category]);
 
   const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
+    setPage((prev) => prev + 1);
   };
 
+  // ✅ CoffeeLoading ตอนโหลดครั้งแรก
+  if (isLoading && page === 1) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <CoffeeLoading text="กำลังชงกาแฟของคุณ..." />
+      </div>
+    );
+  }
+
   return (
-    <section className="w-full mx-auto max-w-[1200px] p-10">
+    <section className="w-full mx-auto max-w-[1200px] px-10 py-5">
       <div>
         <h1 className="h3">Latest articles</h1>
-        <div className="bg-brown-200 mt-2 px-10">
-        {/* Desktop: Category buttons + Search */}
-        <div className="sm:flex hidden gap-4 py-10 px-10">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className={`px-4 py-2 rounded font-medium text-sm transition-colors
-                ${
-                  category === cat
-                    ? "bg-brown-500 text-white cursor-not-allowed"
-                    : "bg-brown-300 hover:bg-brown-400"
-                }`}
-              disabled={category === cat}
-              onClick={() => setCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="bg-brown-200 mt-2 px-10 rounded-2xl">
 
-          <div className="ml-auto">
+          {/* Desktop: Category buttons + Search */}
+          <div className="sm:flex hidden gap-4 py-5 px-10">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                className={`px-4 py-2 rounded-full font-medium text-sm transition-colors 
+                  ${
+                    category === cat.name
+                      ? "bg-brown-500 text-white cursor-not-allowed"
+                      : "bg-brown-300 hover:bg-brown-400"
+                  }`}
+                disabled={category === cat.name}
+                onClick={() => setCategory(cat.name)}
+              >
+                {cat.name}
+              </button>
+            ))}
+
+            <div className="ml-auto">
+              <SearchBar />
+            </div>
+          </div>
+
+          {/* Mobile: Select + Search */}
+          <div className="sm:hidden flex flex-col gap-4 py-10">
             <SearchBar />
+            <div className="relative flex">
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-full bg-white rounded-lg p-2 b1 text-brown-600 border border-brown-300 focus:outline-none focus:ring-2 focus:ring-brown-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-
-        {/* Mobile: Select + Search */}
-        <div className="sm:hidden flex flex-col gap-4 py-10">
-          {/* Search */}
-          <SearchBar />
-
-          {/* Category Select */}
-          <div className="relative flex">
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-full bg-white rounded-lg p-2 b1 text-brown-600 border border-brown-300 focus:outline-none focus:ring-2 focus:ring-brown-500">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
         </div>
       </div>
 
-      {/* Grid Layout: render ตาม posts จาก API */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
-        {posts.map((post) => (
-          <BlogCard
-            key={`${post.id}-${category}-${page}`}
-            id={post.id}
-            image={post.image}
-            category={post.categories?.name || post.category}
-            title={post.title}
-            description={post.description}
-            author={post.author}
-            date={post.date}
-          />
-        ))}
-      </div>
+      {/* ✅ Posts Grid */}
+      {posts.length === 0 && !isLoading ? (
+        <div className="text-center py-20 text-gray-500">
+          ไม่มีบทความในหมวดนี้ ☕
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
+          {posts.map((post) => (
+            <BlogCard
+              key={`${post.id}-${category}-${page}`}
+              id={post.id}
+              image={post.image}
+              category={post.categories?.name || post.category}
+              title={post.title}
+              description={post.description}
+              author={post.author}
+              author_avatar={post.author_avatar}
+              date={post.date}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* View More Button */}
-      {hasMore && (
+      {/* ✅ Loader ตอนโหลดเพิ่ม */}
+      {isFetchingMore && (
+        <div className="flex justify-center items-center py-6">
+          <CoffeeLoading size="w-8 h-8" text="กำลังเทกาแฟเพิ่ม..." />
+        </div>
+      )}
+
+      {/* ✅ View More */}
+      {!isFetchingMore && hasMore && (
         <div className="text-center mt-8">
           <button
             onClick={handleLoadMore}
             className="hover:text-muted-foreground font-medium underline"
-            disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "View more"}
+            View more
           </button>
         </div>
       )}

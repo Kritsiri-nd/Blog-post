@@ -70,7 +70,7 @@ const AdminNotification = () => {
             }`}>
               <div className="flex items-start gap-4">
                 <img
-                  src={notification.actor.profile_pic || '/default-avatar.png'}
+                  src={notification.actor.profile_pic || '/src/assets/default-user.jpg'}
                   alt={notification.actor.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

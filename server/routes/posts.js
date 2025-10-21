@@ -108,7 +108,8 @@ router.get("/", async (req, res) => {
                 content,
                 status_id,
                 likes_count,
-                categories!inner(name)
+                categories!inner(name),
+                users!inner(name, profile_pic)
             `, { count: 'exact' })
             .eq('status_id', 1); // เฉพาะบทความที่ published
 
@@ -139,13 +140,21 @@ router.get("/", async (req, res) => {
         const totalPosts = count;
         const totalPages = Math.ceil(totalPosts / limit);
 
+        // จัดรูปแบบข้อมูล posts ให้รวมข้อมูล author
+        const formattedPosts = (posts || []).map(post => ({
+            ...post,
+            author: post.users.name,
+            author_avatar: post.users.profile_pic,
+            category: post.categories.name
+        }));
+
         // สร้าง response
         const response = {
             totalPosts,
             totalPages,
             currentPage: page,
             limit,
-            posts: posts || [],
+            posts: formattedPosts,
             nextPage: page < totalPages ? page + 1 : null
         };
 
@@ -182,7 +191,8 @@ router.get("/admin", protectAdmin, async (req, res) => {
                 content,
                 status_id,
                 likes_count,
-                categories!inner(name)
+                categories!inner(name),
+                users!inner(name, profile_pic)
             `, { count: 'exact' });
 
         // กรองตาม status (ถ้ามี)
@@ -217,13 +227,21 @@ router.get("/admin", protectAdmin, async (req, res) => {
         const totalPosts = count;
         const totalPages = Math.ceil(totalPosts / limit);
 
+        // จัดรูปแบบข้อมูล posts ให้รวมข้อมูล author
+        const formattedPosts = (posts || []).map(post => ({
+            ...post,
+            author: post.users.name,
+            author_avatar: post.users.profile_pic,
+            category: post.categories.name
+        }));
+
         // สร้าง response
         const response = {
             totalPosts,
             totalPages,
             currentPage: page,
             limit,
-            posts: posts || [],
+            posts: formattedPosts,
             nextPage: page < totalPages ? page + 1 : null
         };
 

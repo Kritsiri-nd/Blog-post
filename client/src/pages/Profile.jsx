@@ -159,7 +159,7 @@ const Profile = () => {
                 {/* User Info Header */}
                 <div className="flex items-center justify-center gap-3 px-4 py-3 border-b border-gray-200">
                     <img
-                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar)}
+                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar || "/src/assets/default-user.jpg")}
                         alt={user?.name}
                         className="w-8 h-8 rounded-full object-cover"
                     />
@@ -173,7 +173,7 @@ const Profile = () => {
                     {/* Profile Picture Section */}
                     <div className="flex flex-col items-center">
                         <img
-                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar)}
+                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar || "/src/assets/default-user.jpg")}
                             alt={user?.name}
                             className="w-32 h-32 rounded-full object-cover mb-6"
                         />
@@ -255,7 +255,7 @@ const Profile = () => {
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-8 px-5">
                         <img
-                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar)}
+                            src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.profilePic || user?.avatar || "/src/assets/default-user.jpg")}
                             alt={user?.name}
                             className="w-12 h-12 rounded-full object-cover"
                         />
@@ -293,7 +293,7 @@ const Profile = () => {
                                 {/* Profile Picture Section */}
                                 <div className="flex items-center gap-6 mb-8">
                                     <img
-                                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar)}
+                                        src={formData.profile_pic instanceof File ? URL.createObjectURL(formData.profile_pic) : (formData.profile_pic || user?.avatar || "/src/assets/default-user.jpg")}
                                         alt={user?.name}
                                         className="w-24 h-24 rounded-full object-cover"
                                     />

@@ -18,7 +18,20 @@ function CommentSection({ postId }) {
     const fetchComments = async () => {
       try {
         const response = await axios.get(`/posts/${postId}/comments`);
-        setComments(response.data.comments || []);
+        const commentsWithAvatars = (response.data.comments || []).map(comment => ({
+          ...comment,
+          author: comment.author_name,
+          avatar: comment.author_avatar || "/src/assets/default-user.jpg",
+          content: comment.content,
+          date: new Date(comment.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        }));
+        setComments(commentsWithAvatars);
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
@@ -52,7 +65,7 @@ function CommentSection({ postId }) {
       const newCommentData = {
         id: response.data.comment.id,
         author: response.data.comment.author_name,
-        avatar: response.data.comment.author_avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face",
+        avatar: response.data.comment.author_avatar || "/src/assets/default-user.jpg",
         date: new Date(response.data.comment.created_at).toLocaleDateString('en-GB', {
           day: 'numeric',
           month: 'long',
@@ -86,13 +99,7 @@ function CommentSection({ postId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="What are your thoughts?"
-            className="w-full p-4 border rounded-lg resize-none"
-            style={{
-              borderColor: 'var(--brown-300)',
-              backgroundColor: 'var(--white)',
-              color: 'var(--brown-600)',
-              minHeight: '100px'
-            }}
+            className="w-full p-4 border rounded-lg resize-none min-h-[100px] text-brown-400 bg-white border-brown-300"
             rows={4}
           />
         </div>
@@ -128,8 +135,8 @@ function CommentSection({ postId }) {
             {/* Comment Content */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)' }}>
+                <div className="flex items-center gap-3">
+                  <h4 className="b1 font-semibold" style={{ color: 'var(--brown-600)', fontSize: '16px', fontWeight: '600' }}>
                     {comment.author}
                   </h4>
                   <span className="b3" style={{ color: 'var(--brown-400)' }}>
