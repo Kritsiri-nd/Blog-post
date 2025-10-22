@@ -258,12 +258,13 @@ router.get("/:postId", async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author - เฉพาะบทความที่ published
+        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author และ category - เฉพาะบทความที่ published
         const { data, error } = await supabase
             .from('posts')
             .select(`
                 *,
-                users!inner(id, name, bio, profile_pic)
+                users!inner(id, name, bio, profile_pic),
+                categories!inner(id, name)
             `)
             .eq('id', postId)
             .eq('status_id', 1) // เฉพาะบทความที่ published
@@ -282,11 +283,13 @@ router.get("/:postId", async (req, res) => {
             author: data.users.name,
             author_bio: data.users.bio,
             author_avatar: data.users.profile_pic,
-            author_id: data.users.id
+            author_id: data.users.id,
+            category: data.categories.name
         };
         
-        // ลบข้อมูล users object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
+        // ลบข้อมูล users และ categories object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
         delete formattedData.users;
+        delete formattedData.categories;
         
         // ถ้าพบข้อมูล
         res.status(200).json(formattedData);
@@ -301,12 +304,13 @@ router.get("/admin/:postId", protectAdmin, async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author - ทั้ง published และ draft
+        // ดึงข้อมูลจาก Supabase พร้อมข้อมูล author และ category - ทั้ง published และ draft
         const { data, error } = await supabase
             .from('posts')
             .select(`
                 *,
-                users!inner(id, name, bio, profile_pic)
+                users!inner(id, name, bio, profile_pic),
+                categories!inner(id, name)
             `)
             .eq('id', postId)
             .single();
@@ -324,11 +328,13 @@ router.get("/admin/:postId", protectAdmin, async (req, res) => {
             author: data.users.name,
             author_bio: data.users.bio,
             author_avatar: data.users.profile_pic,
-            author_id: data.users.id
+            author_id: data.users.id,
+            category: data.categories.name
         };
         
-        // ลบข้อมูล users object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
+        // ลบข้อมูล users และ categories object ออกเพราะเราได้แยกข้อมูลออกมาแล้ว
         delete formattedData.users;
+        delete formattedData.categories;
         
         // ถ้าพบข้อมูล
         res.status(200).json(formattedData);

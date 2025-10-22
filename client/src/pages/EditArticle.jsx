@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import SuccessNotification from '../components/SuccessNotification';
+import CoffeeLoading from '../components/CoffeeLoading';
 import { supabase } from '../lib/supabase.js';
 
 const EditArticle = () => {
@@ -205,7 +206,7 @@ const EditArticle = () => {
     return (
       <div className="flex-1 p-8">
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading article...</div>
+          <CoffeeLoading text="กำลังโหลดบทความ..." />
         </div>
       </div>
     );

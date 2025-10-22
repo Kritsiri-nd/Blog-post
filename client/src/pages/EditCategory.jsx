@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase.js';
 import SuccessNotification from '../components/SuccessNotification';
+import CoffeeLoading from '../components/CoffeeLoading';
 
 const EditCategory = () => {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ const EditCategory = () => {
     return (
       <div className="flex-1 p-8">
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading category...</div>
+          <CoffeeLoading text="กำลังโหลดหมวดหมู่..." />
         </div>
       </div>
     );

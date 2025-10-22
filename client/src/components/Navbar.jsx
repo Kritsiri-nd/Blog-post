@@ -205,26 +205,8 @@ function Navbar() {
                 {/* Navigation Menu */}
                 <div className="flex-1 p-4">
                   <div className="space-y-4">
-                    {/* Profile Link */}
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <User className="w-5 h-5" />
-                      <span className="font-medium">Profile</span>
-                    </Link>
-                    {/* Reset Password Link */}
-                    <Link
-                      to="/reset-password"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                      <span className="font-medium">Reset password</span>
-                    </Link>
-                    {/* Admin Panel Link - Only for admin users */}
-                    {user?.role === 'admin' && (
+                    {user?.role === 'admin' ? (
+                      // Admin menu - only Admin Panel
                       <Link
                         to="/admin/articles"
                         onClick={() => setIsMobileMenuOpen(false)}
@@ -233,6 +215,26 @@ function Navbar() {
                         <Settings className="w-5 h-5" />
                         <span className="font-medium">Admin panel</span>
                       </Link>
+                    ) : (
+                      // Regular user menu - Profile and Reset Password
+                      <>
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <User className="w-5 h-5" />
+                          <span className="font-medium">Profile</span>
+                        </Link>
+                        <Link
+                          to="/reset-password"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <RotateCcw className="w-5 h-5" />
+                          <span className="font-medium">Reset password</span>
+                        </Link>
+                      </>
                     )}
                   </div>
                   {/* Separator */}
