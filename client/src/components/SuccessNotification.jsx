@@ -13,7 +13,7 @@ const SuccessNotification = ({ isVisible, title, message, onClose }) => {
         </div>
         <button
           onClick={onClose}
-          className="ml-3 text-white hover:text-gray-200 transition-colors"
+          className="ml-3 text-white hover:text-gray-200 transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>

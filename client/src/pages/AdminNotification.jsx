@@ -90,7 +90,7 @@ const AdminNotification = () => {
                     </div>
                     <button
                       onClick={() => handleViewArticle(notification.post.id)}
-                      className="text-orange-500 hover:text-orange-700 font-semibold text-sm transition-colors ml-4"
+                      className="text-orange-500 hover:text-orange-700 font-semibold text-sm transition-colors ml-4 cursor-pointer"
                     >
                       View
                     </button>

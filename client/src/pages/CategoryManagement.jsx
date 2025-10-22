@@ -155,7 +155,7 @@ const CategoryManagement = () => {
         <h1 className="h3 text-brown-600">Category management</h1>
         <button
           onClick={handleCreateCategory}
-          className="flex items-center gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 transition-colors"
+          className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create category
@@ -181,7 +181,7 @@ const CategoryManagement = () => {
           <div className="flex gap-2">
             <button
               onClick={() => handleSort('name')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center cursor-pointer gap-2 px-3 py-2 rounded-lg border transition-colors ${
                 sortBy === 'name' 
                   ? 'bg-brown-100 border-brown-300 text-brown-700' 
                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -227,14 +227,14 @@ const CategoryManagement = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditCategory(category.id)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
                       title="Edit category"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(category.id, category.name)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete category"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -190,7 +190,7 @@ const ArticleManagement = () => {
         <h1 className="text-2xl font-bold text-gray-800">Article management</h1>
         <button
           onClick={handleCreateArticle}
-          className="flex items-center gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 not-last:transition-colors"
+          className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 not-last:transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create article
@@ -216,7 +216,7 @@ const ArticleManagement = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+            className="appearance-none cursor-pointer bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
           >
             <option value="all">All Status</option>
             <option value="published">Published</option>
@@ -227,7 +227,7 @@ const ArticleManagement = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+            className="appearance-none cursor-pointer bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
           >
             <option value="all">All Categories</option>
             {uniqueCategories.map(category => (
@@ -294,14 +294,14 @@ const ArticleManagement = () => {
                   <div className="col-span-2 flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleEditArticle(article.id)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
                       title="Edit article"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(article.id, article.title)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete article"
                     >
                       <Trash2 className="w-4 h-4" />

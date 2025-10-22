@@ -10,7 +10,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, articleTitle, typ
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-brown-400 hover:text-brown-600 transition-colors"
+          className="absolute top-4 right-4 text-brown-400 hover:text-brown-600 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -28,13 +28,13 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, articleTitle, typ
           <div className="flex gap-3 justify-center">
             <button
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-brown-600 rounded-full hover:bg-gray-50 transition-colors b1"
+              className="px-6 cursor-pointer py-2 border border-gray-300 text-brown-600 rounded-full hover:bg-gray-50 transition-colors b1"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-brown-400 transition-colors b1"
+              className="px-6 cursor-pointer py-2 bg-brown-600 text-white rounded-full hover:bg-brown-400 transition-colors b1"
             >
               Delete
             </button>

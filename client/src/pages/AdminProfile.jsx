@@ -133,7 +133,7 @@ const AdminProfile = () => {
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-brown-500 transition-colors disabled:opacity-50 b1"
+          className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-brown-500 transition-colors disabled:opacity-50 b1 cursor-pointer"
         >
           {isLoading ? 'Saving...' : 'Save'}
         </button>
@@ -160,7 +160,7 @@ const AdminProfile = () => {
             />
             <button
               onClick={() => document.getElementById('profile-upload').click()}
-              className="px-4 py-2  text-brown-600 rounded-full hover:bg-gray-50 transition-colors b1 border border-brown-300"
+              className="cursor-pointer px-4 py-2  text-brown-600 rounded-full hover:bg-gray-50 transition-colors b1 border border-brown-300"
             >
               Upload profile picture
             </button>

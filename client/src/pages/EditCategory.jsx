@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase.js';
 import SuccessNotification from '../components/SuccessNotification';
 import CoffeeLoading from '../components/CoffeeLoading';
@@ -111,18 +110,12 @@ const EditCategory = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleBack}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
           <h1 className="h3 text-brown-600">Edit category</h1>
         </div>
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-brown-500 transition-colors disabled:opacity-50 b1"
+          className="px-6 py-2 cursor-pointer bg-brown-600 text-white rounded-full hover:bg-brown-500 transition-colors disabled:opacity-50 b1"
         >
           {isLoading ? 'Saving...' : 'Save'}
         </button>

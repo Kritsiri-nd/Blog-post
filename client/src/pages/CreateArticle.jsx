@@ -198,14 +198,14 @@ const CreateArticle = () => {
           <button
             onClick={handleSaveAsDraft}
             disabled={isLoading}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
+            className="px-6 py-2 cursor-pointer border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
           >
             {isLoading ? 'Saving...' : 'Save as draft'}
           </button>
           <button
             onClick={handleSaveAndPublish}
             disabled={isLoading}
-            className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
+            className="px-6 py-2 cursor-pointer bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
           >
             {isLoading ? 'Publishing...' : 'Save and publish'}
           </button>
@@ -252,7 +252,7 @@ const CreateArticle = () => {
               />
               <button
                 onClick={() => document.getElementById('thumbnail-upload').click()}
-                className="px-3 py-1.5 border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors  b1"
+                className="px-3 py-1.5 cursor-pointer border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors  b1"
               >
                 Upload thumbnail image
               </button>
@@ -270,7 +270,7 @@ const CreateArticle = () => {
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleInputChange}
-                className={`w-full appearance-none border rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green ${
+                className={`w-full cursor-pointer appearance-none border rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green ${
                   errors.category_id 
                     ? 'border-red-500' 
                     : 'border-gray-300'
