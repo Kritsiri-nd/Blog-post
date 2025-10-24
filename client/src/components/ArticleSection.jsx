@@ -95,16 +95,16 @@ function ArticleSection() {
     <section className="w-full mx-auto max-w-[1200px] px-10 py-5">
       <div>
         <h1 className="h3">Latest articles</h1>
-        <div className="bg-brown-200 mt-2 px-10 rounded-2xl">
+        <div className="bg-brown-200 mt-2 sm:px-1 px-5 rounded-2xl">
           {/* Desktop: Category buttons + Search */}
           <div className="sm:flex hidden gap-4 py-5 px-10">
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                className={`px-4 py-2 rounded-full font-medium text-sm transition-colors
+                className={`px-5 py-2 rounded-2xl font-medium text-sm transition-colors
                   ${category === cat.name
                     ? "bg-brown-500 text-white cursor-not-allowed"
-                    : "bg-brown-300 hover:bg-brown-400"
+                    : "bg-brown-300 hover:bg-brown-400 cursor-pointer"
                   }`}
                 disabled={category === cat.name}
                 onClick={() => setCategory(cat.name)}

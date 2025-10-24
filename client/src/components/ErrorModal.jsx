@@ -29,7 +29,7 @@ const ErrorModal = ({ isOpen, onClose, title, message, buttonText }) => {
         {/* OK Button */}
         <button
           onClick={onClose}
-          className="w-full bg-brown-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-brown-500 transition-colors"
+          className="w-full bg-brown-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-brown-500 transition-colors cursor-pointer"
         >
           {buttonText || 'OK'}
         </button>

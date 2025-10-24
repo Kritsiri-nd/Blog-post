@@ -4,6 +4,8 @@ import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import SuccessNotification from '../components/SuccessNotification';
+import CoffeeLoading from '../components/CoffeeLoading';
+import Pagination from '../components/Pagination';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -17,6 +19,10 @@ const ArticleManagement = () => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, articleId: null, articleTitle: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Fetch all articles from local server
   const fetchArticles = async () => {
@@ -93,10 +99,35 @@ const ArticleManagement = () => {
     }
 
     setFilteredArticles(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [articles, searchTerm, statusFilter, categoryFilter]);
 
   // Get unique categories for filter
   const uniqueCategories = [...new Set(articles.map(article => article.category))];
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentArticles = filteredArticles.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
 
   const handleCreateArticle = () => {
     // Navigate to create article page
@@ -146,7 +177,7 @@ const ArticleManagement = () => {
     return (
       <div className="flex-1 p-8">
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading articles...</div>
+          <CoffeeLoading text="กำลังโหลดบทความ..." />
         </div>
       </div>
     );
@@ -159,7 +190,7 @@ const ArticleManagement = () => {
         <h1 className="text-2xl font-bold text-gray-800">Article management</h1>
         <button
           onClick={handleCreateArticle}
-          className="flex items-center gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 not-last:transition-colors"
+          className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 not-last:transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create article
@@ -185,7 +216,7 @@ const ArticleManagement = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+            className="appearance-none cursor-pointer bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
           >
             <option value="all">All Status</option>
             <option value="published">Published</option>
@@ -196,7 +227,7 @@ const ArticleManagement = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
+            className="appearance-none cursor-pointer bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green"
           >
             <option value="all">All Categories</option>
             {uniqueCategories.map(category => (
@@ -220,14 +251,14 @@ const ArticleManagement = () => {
 
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
-          {filteredArticles.length === 0 ? (
+          {currentArticles.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
               {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
                 ? 'No articles found matching your criteria.'
                 : 'No articles found.'}
             </div>
           ) : (
-            filteredArticles.map((article, index) => (
+            currentArticles.map((article, index) => (
               <div key={article.id} className={`px-6 py-4 transition-colors ${
                 index % 2 === 0 ? 'bg-brown-200' : 'bg-brown-100'
               } hover:bg-gray-100`}>
@@ -263,14 +294,14 @@ const ArticleManagement = () => {
                   <div className="col-span-2 flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleEditArticle(article.id)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
                       title="Edit article"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(article.id, article.title)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete article"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -283,10 +314,18 @@ const ArticleManagement = () => {
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="mt-4 text-sm text-gray-500">
-        Showing {filteredArticles.length} of {articles.length} articles
-      </div>
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        onPreviousPage={handlePreviousPage}
+        onNextPage={handleNextPage}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalItems={filteredArticles.length}
+        itemName="articles"
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

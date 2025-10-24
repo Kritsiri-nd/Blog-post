@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import SuccessNotification from '../components/SuccessNotification';
+import CoffeeLoading from '../components/CoffeeLoading';
 import { supabase } from '../lib/supabase.js';
 
 const EditArticle = () => {
@@ -205,7 +206,7 @@ const EditArticle = () => {
     return (
       <div className="flex-1 p-8">
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading article...</div>
+          <CoffeeLoading text="กำลังโหลดบทความ..." />
         </div>
       </div>
     );
@@ -220,14 +221,14 @@ const EditArticle = () => {
           <button
             onClick={handleSaveAsDraft}
             disabled={isSaving}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
+            className="px-6 py-2 cursor-pointer border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 b1"
           >
             {isSaving ? 'Saving...' : 'Save as draft'}
           </button>
           <button
             onClick={handleSaveAndPublish}
             disabled={isSaving}
-            className="px-6 py-2 bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
+            className="px-6 py-2 cursor-pointer bg-brown-600 text-white rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 b1"
           >
             {isSaving ? 'Publishing...' : 'Save and publish'}
           </button>
@@ -276,7 +277,7 @@ const EditArticle = () => {
               />
               <button
                 onClick={() => document.getElementById('thumbnail-upload').click()}
-                className="px-3 py-1.5 border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors b1"
+                className="px-3 py-1.5 cursor-pointer border border-gray-300 text-brown-400 rounded-lg hover:bg-gray-50 transition-colors b1"
               >
                 Upload new thumbnail
               </button>
@@ -294,7 +295,7 @@ const EditArticle = () => {
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleInputChange}
-                className={`w-full appearance-none border rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green ${
+                className={`w-full cursor-pointer appearance-none border rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-green ${
                   errors.category_id 
                     ? 'border-red-500' 
                     : 'border-gray-300'

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authentication';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
+import CoffeeLoading from '../components/CoffeeLoading';
 
 const AdminNotification = () => {
   const navigate = useNavigate();
@@ -58,7 +59,9 @@ const AdminNotification = () => {
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         {loading ? (
-          <div className="px-6 py-8 text-center text-gray-500">Loading...</div>
+          <div className="px-6 py-8 text-center">
+            <CoffeeLoading text="กำลังโหลดการแจ้งเตือน..." />
+          </div>
         ) : notifications.length === 0 ? (
           <div className="px-6 py-8 text-center text-gray-500">
             You have no new notifications.
@@ -87,7 +90,7 @@ const AdminNotification = () => {
                     </div>
                     <button
                       onClick={() => handleViewArticle(notification.post.id)}
-                      className="text-orange-500 hover:text-orange-700 font-semibold text-sm transition-colors ml-4"
+                      className="text-orange-500 hover:text-orange-700 font-semibold text-sm transition-colors ml-4 cursor-pointer"
                     >
                       View
                     </button>
