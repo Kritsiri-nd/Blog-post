@@ -229,13 +229,13 @@ const ResetPassword = () => {
                 <nav className="space-y-2">
                   <button
                     onClick={() => navigate('/profile')}
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                    className="flex items-center cursor-pointer gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
                   >
                     Profile
                   </button>
                   <button
                     onClick={() => navigate('/reset-password')}
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
+                    className="flex items-center cursor-pointer gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
                   >
                     Reset password
                   </button>
@@ -318,14 +318,14 @@ const ResetPassword = () => {
                     <button
                       type="button"
                       onClick={() => navigate('/profile')}
-                      className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-6 py-2 cursor-pointer border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                      className="flex-1 px-6 py-2 cursor-pointer bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
                     >
                       {isLoading ? 'Changing...' : 'Reset Password'}
                     </button>

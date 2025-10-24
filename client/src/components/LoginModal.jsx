@@ -19,7 +19,7 @@ function LoginModal({ isOpen, onClose }) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl cursor-pointer"
         >
           ×
         </button>
@@ -33,7 +33,7 @@ function LoginModal({ isOpen, onClose }) {
           {/* Create Account Button */}
           <button
             onClick={handleCreateAccount}
-            className="w-full bg-brown-600 text-white py-4 px-6 rounded-full b1 hover:bg-brown-500 transition-colors mb-4"
+            className="w-full bg-brown-600 text-white py-4 px-6 rounded-full b1 hover:bg-brown-500 transition-colors mb-4 cursor-pointer"
           >
             Create account
           </button>
@@ -43,7 +43,7 @@ function LoginModal({ isOpen, onClose }) {
             Already have an account?{" "}
             <button
               onClick={handleLogin}
-              className="text-brown-600 underline hover:text-brown-400 transition-colors"
+              className="text-brown-600 underline hover:text-brown-400 transition-colors cursor-pointer"
             >
               Log in
             </button>

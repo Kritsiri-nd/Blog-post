@@ -29,7 +29,7 @@ const SuccessModal = ({ isOpen, onClose, title, message, buttonText, onButtonCli
         {/* Continue Button */}
         <button
           onClick={onButtonClick || onClose}
-          className="w-full bg-brown-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-brown-500 transition-colors"
+          className="w-full bg-brown-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-brown-500 transition-colors cursor-pointer"
         >
           {buttonText || 'Continue'}
         </button>

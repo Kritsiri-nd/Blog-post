@@ -271,14 +271,14 @@ const Profile = () => {
                                 <nav className="space-y-2">
                                     <button
                                         onClick={() => navigate('/profile')}
-                                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
+                                        className="flex items-center cursor-pointer gap-3 px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg w-full text-left"
                                     >
                                         <User className="w-4 h-4" />
                                         Profile
                                     </button>
                                      <button
                                          onClick={() => navigate('/reset-password')}
-                                         className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                                         className="flex items-center cursor-pointer gap-3 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
                                      >
                                          <Lock className="w-4 h-4" />
                                          Reset password
@@ -306,7 +306,7 @@ const Profile = () => {
                                     />
                                     <button 
                                         onClick={() => document.getElementById('profile-upload-desktop').click()}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        className="px-4 py-2 cursor-pointer border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                     >
                                         Upload profile picture
                                     </button>
@@ -363,7 +363,7 @@ const Profile = () => {
                                         <button
                                             onClick={handleSave}
                                             disabled={isLoading}
-                                            className="px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-6 py-2 cursor-pointer bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isLoading ? 'Saving...' : 'Save'}
                                         </button>

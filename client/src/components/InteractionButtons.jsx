@@ -174,7 +174,7 @@ function InteractionButtons({ likes, postId }) {
       {/* Like Button */}
       <button
         onClick={handleLike}
-        className={`flex items-center gap-2 px-8 py-4 rounded-full transition-colors ${
+        className={`flex items-center cursor-pointer gap-2 px-8 py-4 rounded-full transition-colors ${
           isLiked 
             ? 'bg-green-light text-green' 
             : 'bg-brown-200 text-brown-600'
@@ -187,7 +187,7 @@ function InteractionButtons({ likes, postId }) {
       {/* Copy Link Button */}
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-2 px-8 py-4 rounded-full transition-colors bg-brown-200 text-brown-600 hover:bg-brown-300"
+        className="flex items-center cursor-pointer gap-2 px-8 py-4 rounded-full transition-colors bg-brown-200 text-brown-600 hover:bg-brown-300"
       >
         <span className="text-2xl">🔗</span>
         <span className="b2 font-medium">Copy link</span>
@@ -197,7 +197,7 @@ function InteractionButtons({ likes, postId }) {
       <div className="flex items-center">
         <button
           onClick={() => handleShare("facebook")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 cursor-pointer"
         >
           <img 
             src={FacebookIcon} 
@@ -208,7 +208,7 @@ function InteractionButtons({ likes, postId }) {
         
         <button
           onClick={() => handleShare("linkedin")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 cursor-pointer"
         >
           <img 
             src={LinkedInIcon} 
@@ -219,7 +219,7 @@ function InteractionButtons({ likes, postId }) {
         
         <button
           onClick={() => handleShare("twitter")}
-          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 "
+          className="w-14 h-14 rounded-full bg-white flex items-center justify-center transition-all hover:scale-105 cursor-pointer"
         >
           <img 
             src={TwitterIcon} 

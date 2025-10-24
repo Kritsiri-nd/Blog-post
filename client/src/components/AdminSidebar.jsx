@@ -98,7 +98,7 @@ const AdminSidebar = () => {
               <li key={item.id}>
                 <button
                   onClick={() => handleMenuClick(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     item.active
                       ? 'bg-brown-300 text-gray-800'
                       : 'text-brown-500 hover:text-brown-800 hover:bg-gray-100'
@@ -119,7 +119,7 @@ const AdminSidebar = () => {
           <li>
             <button
               onClick={handleWebsiteClick}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Kritsiri .N
@@ -128,7 +128,7 @@ const AdminSidebar = () => {
           <li>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Log out

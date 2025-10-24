@@ -97,7 +97,7 @@ function Navbar() {
           <div className="flex items-center gap-4">
             {/* Notification Bell */}
             <div className="relative notification-container">
-              <button onClick={handleNotificationClick} className="focus:outline-none">
+              <button onClick={handleNotificationClick} className="focus:outline-none cursor-pointer">
                 <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
                 {hasUnread && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>}
               </button>
@@ -107,7 +107,7 @@ function Navbar() {
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg">
+                <button className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-2 rounded-lg cursor-pointer">
                   <img
                     src={user?.profilePic || "/src/assets/default-user.jpg"}
                     alt={user?.name}
@@ -124,12 +124,12 @@ function Navbar() {
                   // Admin dropdown - only Admin Panel and Logout
                   <>
                     <DropdownMenuItem asChild>
-                      <Link to="/admin/articles" className="flex items-center gap-2">
+                      <Link to="/admin/articles" className="flex items-center gap-2 cursor-pointer">
                         <Settings className="w-4 h-4" />
                         Admin Panel
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer">
                       <LogOut className="w-4 h-4" />
                       Logout
                     </DropdownMenuItem>
@@ -138,18 +138,18 @@ function Navbar() {
                   // Regular user dropdown - Profile, Reset Password, and Logout
                   <>
                     <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center gap-2">
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                         <User className="w-4 h-4" />
                         Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/reset-password" className="flex items-center gap-2">
+                      <Link to="/reset-password" className="flex items-center gap-2 cursor-pointer">
                         <RotateCcw className="w-4 h-4" />
                         Reset Password
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer">
                       <LogOut className="w-4 h-4" />
                       Logout
                     </DropdownMenuItem>
@@ -162,10 +162,10 @@ function Navbar() {
           // Login/Signup Buttons
           <>
             <Link to="/signin">
-              <Button variant="secondary">Log in</Button>
+              <Button variant="secondary" className="cursor-pointer">Log in</Button>
             </Link>
             <Link to="/signup">
-              <Button variant="primary">Sign up</Button>
+              <Button variant="primary" className="cursor-pointer">Sign up</Button>
             </Link>
           </>
         )}
@@ -205,26 +205,8 @@ function Navbar() {
                 {/* Navigation Menu */}
                 <div className="flex-1 p-4">
                   <div className="space-y-4">
-                    {/* Profile Link */}
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <User className="w-5 h-5" />
-                      <span className="font-medium">Profile</span>
-                    </Link>
-                    {/* Reset Password Link */}
-                    <Link
-                      to="/reset-password"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                      <span className="font-medium">Reset password</span>
-                    </Link>
-                    {/* Admin Panel Link - Only for admin users */}
-                    {user?.role === 'admin' && (
+                    {user?.role === 'admin' ? (
+                      // Admin menu - only Admin Panel
                       <Link
                         to="/admin/articles"
                         onClick={() => setIsMobileMenuOpen(false)}
@@ -233,6 +215,26 @@ function Navbar() {
                         <Settings className="w-5 h-5" />
                         <span className="font-medium">Admin panel</span>
                       </Link>
+                    ) : (
+                      // Regular user menu - Profile and Reset Password
+                      <>
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <User className="w-5 h-5" />
+                          <span className="font-medium">Profile</span>
+                        </Link>
+                        <Link
+                          to="/reset-password"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <RotateCcw className="w-5 h-5" />
+                          <span className="font-medium">Reset password</span>
+                        </Link>
+                      </>
                     )}
                   </div>
                   {/* Separator */}

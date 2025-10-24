@@ -4,6 +4,8 @@ import { Plus, Search, Edit, Trash2, Filter, SortAsc, SortDesc } from 'lucide-re
 import { supabase } from '../lib/supabase.js';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import SuccessNotification from '../components/SuccessNotification';
+import CoffeeLoading from '../components/CoffeeLoading';
+import Pagination from '../components/Pagination';
 
 const CategoryManagement = () => {
   const navigate = useNavigate();
@@ -16,6 +18,10 @@ const CategoryManagement = () => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, categoryId: null, categoryName: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Fetch categories from Supabase
   useEffect(() => {
@@ -46,6 +52,7 @@ const CategoryManagement = () => {
     });
 
     setFilteredCategories(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [categories, searchTerm, sortBy, sortOrder]);
 
   const fetchCategories = async () => {
@@ -117,6 +124,30 @@ const CategoryManagement = () => {
     setDeleteModal({ isOpen: false, categoryId: null, categoryName: '' });
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCategories = filteredCategories.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+
   return (
     <div className="flex-1 p-8">
       {/* Header */}
@@ -124,7 +155,7 @@ const CategoryManagement = () => {
         <h1 className="h3 text-brown-600">Category management</h1>
         <button
           onClick={handleCreateCategory}
-          className="flex items-center gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 transition-colors"
+          className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-brown-600 text-white rounded-lg hover:bg-brown-500 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create category
@@ -150,7 +181,7 @@ const CategoryManagement = () => {
           <div className="flex gap-2">
             <button
               onClick={() => handleSort('name')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center cursor-pointer gap-2 px-3 py-2 rounded-lg border transition-colors ${
                 sortBy === 'name' 
                   ? 'bg-brown-100 border-brown-300 text-brown-700' 
                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -177,15 +208,15 @@ const CategoryManagement = () => {
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
           {isLoading ? (
-            <div className="px-6 py-8 text-center text-gray-500">
-              Loading categories...
+            <div className="px-6 py-8 text-center">
+              <CoffeeLoading text="กำลังโหลดหมวดหมู่..." />
             </div>
-          ) : filteredCategories.length === 0 ? (
+          ) : currentCategories.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
               {searchTerm ? 'No categories found matching your search.' : 'No categories found.'}
             </div>
           ) : (
-            filteredCategories.map((category, index) => (
+            currentCategories.map((category, index) => (
               <div key={category.id} className={`px-6 py-4 transition-colors ${
                 index % 2 === 0 ? 'bg-brown-200' : 'bg-brown-100'
               } hover:bg-gray-100`}>
@@ -196,14 +227,14 @@ const CategoryManagement = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditCategory(category.id)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
                       title="Edit category"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(category.id, category.name)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete category"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -215,6 +246,19 @@ const CategoryManagement = () => {
           )}
         </div>
       </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        onPreviousPage={handlePreviousPage}
+        onNextPage={handleNextPage}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalItems={filteredCategories.length}
+        itemName="categories"
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

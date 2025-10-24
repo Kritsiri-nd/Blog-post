@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { formatThaiDate } from "../lib/utils";
 import InteractionButtons from "../components/InteractionButtons";
 import CommentSection from "../components/CommentSection";
+import CoffeeLoading from "../components/CoffeeLoading";
 
 function PostPage() {
   const { postId } = useParams();
@@ -43,7 +44,7 @@ function PostPage() {
       <div className="min-h-screen" style={{ backgroundColor: 'var(--white)' }}>
         <div className="w-full mx-auto max-w-[1200px] p-10">
           <div className="text-center">
-            <div className="h3" style={{ color: 'var(--brown-600)' }}>Loading...</div>
+            <CoffeeLoading text="กำลังโหลดบทความ..." />
           </div>
         </div>
       </div>

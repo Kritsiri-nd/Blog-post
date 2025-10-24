@@ -3,6 +3,7 @@ import { useAuth } from '../context/authentication';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
+import CoffeeLoading from './CoffeeLoading';
 
 const NotificationDropdown = ({ onClose }) => {
   const [notifications, setNotifications] = useState([]);
@@ -62,7 +63,9 @@ const NotificationDropdown = ({ onClose }) => {
       </div>
       <div className="max-h-96 overflow-y-auto">
         {loading ? (
-          <div className="p-4 text-center text-gray-500">Loading...</div>
+          <div className="p-4 text-center">
+            <CoffeeLoading size="w-8 h-8" text="กำลังโหลดการแจ้งเตือน..." />
+          </div>
         ) : notifications.length === 0 ? (
           <div className="p-4 text-center text-gray-500">No new notifications</div>
         ) : (
